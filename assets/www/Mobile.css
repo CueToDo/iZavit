@@ -96,3 +96,4 @@ html.busy, html.busy * {  cursor: wait !important;}  /* http://postpostmodern.co
 
 .Android{}
 
+div.Information p {color:Green; margin-bottom:10px; font-weight:normal}

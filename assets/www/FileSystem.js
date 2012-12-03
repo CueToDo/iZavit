@@ -71,10 +71,12 @@ function readSettings() {
                     promptRegistration();
                 }
                 else {
-                    alert(stringSettings);
+                    
+                    //alert(stringSettings);
+
                     jsonSettings = jQuery.parseJSON(stringSettings);
 
-                    alert(jsonSettings.emailAddress);
+                    //alert(jsonSettings.emailAddress);
 
                     //If we don't have an email or session key, get user to sign in / register
                     if (jsonSettings.emailAddress == null || jsonSettings.emailAddress == '' || jsonSettings.sessionKey == null || jsonSettings.sessionKey == '') {

@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link type="text/css" href="jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link type="text/css" href="Mobile.css" rel="stylesheet" />
 
     <script src="jquery-1.8.2.min.js" type="text/javascript"></script>
     <script src="jquery.mobile-1.2.0.min.js" type="text/javascript"></script>
@@ -50,8 +51,7 @@
 
             navigator.splashscreen.hide();
 
-            if (navigator.network.connection.type == Connection.NONE) { alert ('No Network Connection')};
-            checkConnection();
+            if (navigator.network.connection.type == Connection.NONE) { $.mobile.changePage($('#divNoNetwork')); };
 
         }, false);
 
@@ -146,6 +146,20 @@
             </div>
     </div>
  
+    <div data-role="page" id="divNoNetwork" data-theme="b">
+        <div data-role="header">
+            <h1 id="h1">iZavit</h1>
+            
+
+        </div>
+        <div  data-role="content" class="Information">
+            <p>Please adjust your phone settings to allow this app to connect to the internet.</p>
+            <p>You may need to enable WiFi or disable Flight Mode</p>
+            <p>The iZavit app uses web services to retrieve data from and save data to a central database.</p>
+            <p>Unfortunately a network conection cannot be detected at this time.</p>        
+        </div>
+    </div>
+
     <div data-role="page" id="divSignIn" data-add-back-btn="true" data-theme="b">
  
         <div data-role="header">
