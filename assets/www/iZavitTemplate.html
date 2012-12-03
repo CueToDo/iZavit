@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+
+        <!--http://en.wikipedia.org/wiki/JQuery_Mobile-->
+
+		<title>iZavit World Intelligence Agency</title>
+		
+		<meta charset="UTF-8" />
+		
+        <link type="text/css" href="styles/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+        <link type="text/css" rel="Stylesheet" href="styles/Mobile.css" />
+
+		<!--PhoneGap/Cordova and JQuery script libraries-->
+        <script src="scripts/jquery-1.8.2.min.js" type="text/javascript"></script>
+        <script src="scripts/jquery.mobile-1.2.0.min.js" type="text/javascript"></script>
+		<script src="scripts/cordova-2.2.0.js" type="text/javascript" charset="utf-8" ></script>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+	    <script type="text/javascript" language="javascript">
+
+	        function Login() {
+
+	            alert('Login');
+
+	            $.ajax({
+	                url: "https://www.WestfieldHealth.com/Secure/ExternalServices/iPhone/v2/Authentication.asmx/AttemptLoginJSON",
+	                contentType: "application/json; charset=utf-8",
+	                type: "POST",
+
+	                data: '{"UserName":"' + $("#ipUserName").val() + '","Password":"' + $("#ipPassword").val() + '"}',
+	                dataType: "json",
+
+	                //Successful Login
+	                success: function (msg) {
+	                    var result = eval(msg.d);
+	                    if (result.PasswordCorrect) {
+                            alert('Getting Beneficiaries');
+	                        GetBeneficiaries();
+	                    } else {
+	                        LoggedOut();
+	                        alert('Incorrect username or password');
+	                        $("#ipPassword").val(''); //Retain UserName but not password
+	                    }
+	                },
+
+	                //Login Error
+	                error: function (jqXHR, textStatus, errorThrown) {
+	                    alert(errorThrown);
+	                    LoggedOut();
+	                    alert(textStatus + ': ' + errorThrown);
+	                }
+
+	            });           //end ajax
+	            
+	        }; //end function Login
+	
+	        function IsLoggedIn() {
+	
+	            $.ajax({
+	                url: "https://www.WestfieldHealth.com/Secure/ExternalServices/iPhone/v2/Authentication.asmx/IsAuthenticatedJSON",
+	                contentType: "application/json; charset=utf-8",
+	                type: "POST",
+	
+	                data: '{}',
+	                dataType: "json",
+	                //async: false,       //http://stackoverflow.com/questions/755885/how-do-i-make-jquery-wait-for-an-ajax-call-to-finish-before-it-returns
+	
+	                success: function(msg) {
+	                    //We have an answer
+	                    if (!msg.d) {alert('failure'); LoggedOut(); } //Server says no.
+	                },
+	
+	                error: function(jqXHR, textStatus, errorThrown) {
+	                    alert(textStatus + ': ' + errorThrown);
+	                    LoggedOut();
+	                }
+	
+	            });         //end ajax            
+	        }
+	        
+	        function Logout() {
+
+	            alert('Logout');
+
+	            $.ajax({
+	                url: "https://www.WestfieldHealth.com/Secure/ExternalServices/iPhone/v2/Authentication.asmx/LogoutJSON",
+	                contentType: "application/json; charset=utf-8",
+	                type: "POST",
+
+	                data: '{}',
+	                dataType: "json",
+
+	                success: function (msg) {
+	                    alert('logged out');
+	                    LoggedOut();
+	                },
+
+	                error: function (jqXHR, textStatus, errorThrown) {
+	                    alert('Logout error');
+	                    alert(textStatus + ': ' + errorThrown);
+	                }
+
+	            });    //end ajax
+	        };
+	        
+	
+	        function LoggedOut() {
+	
+	            //Remove previous data rows
+	            $("#tblClaims tbody").remove("tr");
+	            $("#tblBenefits tbody").remove("tr");
+
+	        };
+
+
+	        function GetBeneficiaries() {
+
+	            var NumBeneficiaries = 0;
+
+	            $.ajax({
+	                url: "https://www.WestfieldHealth.com/Secure/ExternalServices/iPhone/v2/ClaimsBalance.asmx/GetDependantsListJSON",
+	                contentType: "application/json; charset=utf-8",
+	                type: "POST",
+
+	                data: '{}',
+	                dataType: "json",
+
+	                success: function (msg) {
+
+	                    var result = eval(msg.d);
+	                    var dependants = result.Dependants;
+
+	                    //every web method checks and returns SessionLeyValid
+	                    if (!result.RequestStatus.SessionKeyValid) {
+	                        alert('Invalid Session Key');
+	                        LoggedOut();
+	                    } else {
+	                        if (dependants) {
+	                            NumBeneficiaries = dependants.length;
+	                            if (NumBeneficiaries == 1) {
+
+	                                alert('Getting Claims');
+	                                GetClaims(dependants[0].FirstName, dependants[0].Relation);
+
+	                                alert('Getting Benefits');
+	                                GetBenefits(dependants[0].FirstName, dependants[0].Relation);
+
+	                                alert('Back link');
+	                                //$("#aBackFromClaims").click('alert(\'X\');'); //Logout. No need to change href - class=back
+	                                $("#aBackFromClaims").text('Logout');
+	                                $('#h1Claims').text('Claims - ' + dependants[0].FirstName);
+	                                $('#h1Benefits').text('Benefits - ' + dependants[0].FirstName);
+
+	                                //Back links (any links) don't work when using goto
+	                                alert('Goto claims');
+	                                jQT.goTo('#divClaims', 'slide'); //Go straight to claims; No need to display beneficiaries
+
+                                    //window.location = "#divBeneficiaries";
+	                                //$.mobile.changePage('#Claims', "slide");
+
+	                            }
+	                            else {
+	                                //Add contributor and all dependants to the list
+	                                $("#ulBeneficiaries").empty();
+	                                var ulBeneficiaries = document.getElementById('ulBeneficiaries');
+	                                for (i = 0; i < NumBeneficiaries; i++) {
+	                                    var newDependant = document.createElement('li');
+	                                    newDependant.innerHTML = '<a href="#Claims"'
+                                            + ' onclick="GetClaims(\'' + dependants[i].FirstName + '\',\'' + dependants[i].Relation + '\');'
+                                            + 'GetBenefits(\'' + dependants[i].FirstName + '\',\'' + dependants[i].Relation + '\');'
+                                            + '$(\'#h1Claims\').text(\'Claims - ' + dependants[i].FirstName + '\');'
+                                            + '$(\'#h1Benefits\').text(\'Balances - ' + dependants[i].FirstName + '\')"'
+                                            + '>' + dependants[i].FirstName + ' ' + dependants[i].Surname + ' (' + dependants[i].DateOfBirth + ')</a>';
+	                                    $("#ulBeneficiaries").append(newDependant);
+	                                }
+	                                //Back links (any links) don't work when using goto
+	                                //jQT.goTo($('#divBeneficiaries'), 'slide');
+	                                alert('Goto Beneficiaries');
+	                                window.location = "#divBeneficiaries";
+	                                //$.mobile.changePage($("#divBeneficiaries"), { transition: "slide" });
+	                            }
+	                        } else {
+	                            alert('No dependants retrieved');
+	                        }
+	                    }
+
+	                },
+
+	                error: function (jqXHR, textStatus, errorThrown) {
+	                    alert('Failed to get beneficiaries. (' + textStatus + ': ' + errorThrown + ')');
+	                    IsLoggedIn();
+	                }
+
+	            }) //end ajax
+
+	        }
+
+	        function GetClaims(FirstName, ContribPartnerOrChild) {
+	
+	            $.ajax({
+	                url: "https://www.WestfieldHealth.com/Secure/ExternalServices/iPhone/v2/ClaimsBalance.asmx/GetClaimsListJSON",
+	                contentType: "application/json; charset=utf-8",
+	                type: "POST",
+
+	                data: '{"FirstName":"' + FirstName + '","ContribPartnerOrChild":"' + ContribPartnerOrChild + '","ClaimTypeID":-1,"QueryDate":"13 Dec 2011"}',
+	                dataType: "json",
+	
+	                success: function(msg) {
+	
+	                    var result = eval(msg.d);
+	                    var claims = result.Claims;
+	
+	                    if (!result.RequestStatus.SessionKeyValid) {
+	                        alert('Invalid Session Key');
+	                        LoggedOut();
+	                    } else {
+	                        if (claims) {
+                                $("#tblClaims tbody").empty();
+	                            for (i = 0; i < claims.length; i++) {
+	                                $("#tblClaims tbody").append("<tr><td>" + claims[i].ReceiptDate + "</td><td>" + claims[i].Description + "</td><td align='right'>" + claims[i].Amount + "</td></tr>");
+	                            }
+	                            $('#tblClaims tbody tr:even').addClass('AlternatingItem');
+	                        } else {
+	                            alert('No claims retrieved. Logged in: ' + result.RequestStatus.SessionKeyValid)
+	                        }
+	                    }
+	
+	                },
+	
+	                error: function(jqXHR, textStatus, errorThrown) {
+	                    alert(textStatus + ': ' + errorThrown);
+	                    IsLoggedIn();
+	                }
+	
+	            }) //end ajax            
+	
+	        };   //end Function GetClaims
+
+	        function GetBenefits(DependantName, ContribPartnerOrChild) {
+
+	            if (ContribPartnerOrChild == 'Contrib') { DependantName = '' };
+
+	            $.ajax({
+	                url: "https://www.WestfieldHealth.com/Secure/ExternalServices/iPhone/v2/ClaimsBalance.asmx/GetBalancesJSON",
+	                contentType: "application/json; charset=utf-8",
+	                type: "POST",
+
+	                data: '{"OptionalDependantName":"' + DependantName + '","ClaimTypeID":-1,"QueryDate":"19 Oct 2011"}',
+	                dataType: "json",
+
+	                success: function (msg) {
+
+	                    var result = eval(msg.d);
+	                    var BenefitBalances = result.ClaimsBalances;
+
+	                    if (!result.RequestStatus.SessionKeyValid) {
+	                        alert('Invalid Session Key');
+	                        LoggedOut();
+	                    } else {
+	                        //Valid SessionKey:User is logged in
+	                        alert('bens rx');
+	                        if (BenefitBalances) {
+	                            $("#tblBenefits tbody").empty();
+	                            for (i = 0; i < BenefitBalances.length; i++) {
+	                                $("#tblBenefits tbody").append("<tr><td>" + BenefitBalances[i].ClaimType + "</td><td align='right'>" + BenefitBalances[i].BalanceAmount + "</td><td>" + BenefitBalances[i].DateNextInBenefit + "</td></tr>")
+	                            };
+	                            $('#tblBenefits tbody tr:even').addClass('AlternatingItem');
+	                        } else {
+	                            alert('No benefits retrieved. Logged in: ' + result.RequestStatus.SessionKeyValid)
+	                        };
+	                    };
+
+	                },
+
+	                error: function (jqXHR, textStatus, errorThrown) {
+	                    alert(textStatus + ': ' + errorThrown);
+	                    IsLoggedIn();
+	                }
+
+	            });
+	
+	        }
+
+
+
+	        $(document).ready(function () {
+
+	            //Add handlers for the click event. http://api.jquery.com/click/
+
+	            $("#aLogin").click(Login);
+	            $("#aLogout").click(Logout); //Logout is never called
+
+	        });     //end document.ready.function
+	        
+
+	    </script>    
+	         		
+	</head>
+	
+	<body>
+
+		<div id="divHome"  data-role="page" data-theme="a">
+				
+            <div data-role="header">
+				<h1>iZavit</h1>
+			</div>
+				
+            <div data-role="content">       
+				<p>The World Intelligence Agency</p>
+                <ul class="rounded">
+				    <li class="arrow"><a id="aLogin" href="#divLogin">Sign in</a></li> 
+                    <li class="arrow"><a href="#divTest">Test</a></li>
+			    </ul>
+			</div>
+
+		</div>
+            		
+                    	
+		<div id="divLogin"  data-role="page" data-theme="a" data-add-back-btn="true">  
+
+			<div data-role="header"> 
+			    <h1>Login</h1>     
+			</div>  
+            
+            <div data-role="content">
+            
+			    <form id="task">  
+				    <ul class="rounded">  
+					    <li><input id="ipUserName" type="text" value="snowdon" /></li>  
+					    <li><input id="ipPassword" type="password" value="S5 8RU" /></li>  
+				        <li class="arrow"><a id="aLoginSubmit" href="JavaScript:void();">Login</a></li>
+				    </ul>
+				    <!--
+                    <li class="arrow"><a id="aMyWestfield" href="#Claims">Go to claims</a></li>
+                    placeholder="Username"
+				    placeholder="Password"-->
+				    <!--<a id="aMyWestfield" href="#divBeneficiaries"></a>-->
+                    
+			    </form>
+            </div>			    
+		</div> 
+			
+
+		<div id="divBeneficiaries"  data-role="page" data-theme="a" data-add-back-btn="true">
+			<div data-role="header">
+				<h1>Beneficiaries</h1>
+			</div>
+            <div data-role="content">
+                <ul id="ulBeneficiaries" class="rounded">    
+			    </ul>  
+            </div>
+			
+		</div>
+			
+
+		<div id="divClaims"  data-role="page" data-theme="a" data-add-back-btn="true">
+				
+            <div data-role="header">
+				<h1 id="h1Claims"></h1>
+			</div>
+
+			<div data-role="content">
+				<table id="tblClaims" class="DataGrid">
+                    <thead>
+						<tr class="DataGridHead">
+							<td>Claim Date</td>
+							<td>Claim Type</td>
+							<td>Amount</td>
+						</tr>
+					</thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+				</table>
+	
+				
+                <ul class="rounded">  
+			        <li class="arrow"><a href="#divBenefits">Benefit balances</a></li>  
+			    </ul>  
+
+		    </div>
+
+		</div>
+			
+
+		<div id="divBenefits"  data-role="page" data-theme="a" data-add-back-btn="true">
+			
+            <div data-role="header">
+				<h1 id="h1Benefits">Benefits</h1>
+			</div>
+			
+            <div data-role="content">
+				<table id="tblBenefits" class="DataGrid">
+                    <thead>
+						<tr class="DataGridHead">
+							<td>Benefit</td>
+							<td>Remaining</td>
+							<td>Next in Ben</td>
+						</tr>
+                    </thead>
+                    <tbody>
+						<tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+				</table>
+			</div>
+		</div>
+			
+
+        <div id="divTest"  data-role="page" data-theme="a" data-add-back-btn="true">
+            
+            <div data-role="header">
+                <h1>Test</h1>
+            </div>
+
+        </div>
+		
+	</body>
+	
+</html>
+
+
+<!--
+    function Wait() {
+	    $("html").addClass('busy');
+	    $("#imgWait").css("visibility", "visible");
+    };
+	
+    function Ready() {
+	    $("html").removeClass('busy');
+	    $("#imgWait").css("visibility", "hidden");
+    };
+-->
+
+<!--
+	//Automatically change cursor on AJAX call/completion
+	//http://postpostmodern.com/instructional/global-ajax-cursor-change/
+	//http://stackoverflow.com/questions/1718415/getting-the-browser-cursor-from-wait-to-auto-without-the-user-moving-the-mou
+	
+	$("html")
+	    .bind("ajaxStart", function() { $(this).addClass('busy') })
+	    .bind("ajaxStop", function() { $(this).removeClass('busy') })
+
+-->

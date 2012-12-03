@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html> 
+<html>
+
+<head>
+
+    <title></title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+
+	<script src="jquery-1.8.2.min.js" type="text/javascript"></script>  
+    <script src="jquery.mobile-1.2.0.min.js" type="text/javascript"></script>
+    <script src="cordova-2.2.0.js" type="text/javascript"></script>
+    <script src="JSON2.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).bind("mobileinit", function () {
+            $.support.cors = true;
+            $.mobile.allowCrossDomainPages = true;
+        });
+    </script>
+    
+    <link rel="Stylesheet" href="jquery.mobile-1.2.0.min.css" />
+
+
+</head>
+
+<body>
+
+    <div >
+        
+        <button id="ButtonRegisterEmailAddress" value="register"></button>
+    </div> 
+    
+    <div data-role="page" id="home" class = "ui-hide-label">
+
+        <input type="text" id="tbEmailAddress" name="tbEmailAddress" placeholder="email address" />
+        <label for="tbEmailAddress">email</label>
+
+        <input type="text" id="tbSessionKey" name="tbSessionKey" placeholder="session key" />
+        <label for="tbSessionKey">session key</label>
+
+        <input type="button" id="ButtonSubmit" value="Save" />
+
+    </div>
+
+ </body>
+
+    <script type="text/javascript">
+
+
+
+        document.addEventListener('deviceready', function () {
+                    
+            var fail = failCallBack('requestFileSystem');
+            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+            //window.requestFileSystem(type, size, successCallback, opt_errorCallback)
+
+        }, false);
+
+
+
+        $("#ButtonSubmit").click(function () {
+            saveText();
+        });
+        
+        
+    </script>
+
+</html>

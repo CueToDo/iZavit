@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html> 
+
+<html> 
+
+<head> 
+
+<style>   p { color:red; margin:5px; cursor:pointer; }   p:hover { background:yellow; }   </style> 
+
+    <title>iZavit - World Intelligence Agency</title>    
+    
+    <!--http://en.wikipedia.org/wiki/JQuery_Mobile-->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link type="text/css" href="jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+
+    <script src="jquery-1.8.2.min.js" type="text/javascript"></script>
+    <script src="jquery.mobile-1.2.0.min.js" type="text/javascript"></script>
+    <script src="cordova-2.2.0.js" type="text/javascript"></script>
+    <script src="JSON2.js" type="text/javascript"></script>
+    <script src="FileSystem.js" type="text/javascript"></script>
+    <script src="iZavit.js" type="text/javascript"></script>
+
+    <script type="text/javascript" charset="utf-8">
+
+        //Anonymous functions
+        //http://2007-2010.lovemikeg.com/2008/08/17/a-week-in-javascript-patterns-self-invocation/
+
+        //http://stackoverflow.com/questions/11138501/phonegap-for-android-deviceready-not-working
+
+        //http://jquerymobile.com/test/docs/pages/phonegap.html
+        $(document).bind("mobileinit", function () {
+            // Make your jQuery Mobile framework configuration changes here!
+            $.support.cors = true; 
+            $.mobile.allowCrossDomainPages = true;
+        });
+
+        //Preferences 
+        //http://www.javacodegeeks.com/2011/01/android-quick-preferences-tutorial.html
+        //http://simonmacdonald.blogspot.co.uk/2012/06/phongap-android-application-preferences.html
+
+        $(document).ready(function () {
+            //Add handlers for the click event. http://api.jquery.com/click/
+        });
+
+        document.addEventListener('deviceready', function () {
+
+            //won't fire when you 
+            //super.setBooleanProperty("loadInWebView", true);
+
+            navigator.splashscreen.hide();
+
+            if (navigator.network.connection.type == Connection.NONE) { alert ('No Network Connection')};
+            checkConnection();
+
+        }, false);
+
+    </script>
+
+</head> 
+
+<body> 
+ 
+
+    <div data-role="page" id="first" data-theme="a">
+ 
+            <div data-role="header">
+                <h1>Is this an issue?</h1>
+            </div>
+ 
+            <div data-role="content">  
+                   
+  <p>First Paragraph</p>    
+  <p>Second Paragraph</p>   
+  <p>Yet one more Paragraph</p> 
+
+                <div class="M">
+                    <h1 id="hIssue"></h1>
+
+                    <span id="spanIssueContext"></span>
+                    <span id="spanIssueContext2"></span>
+                </div>
+
+                <div class="M center">
+
+                    <div class="SubHead">Rate this issue (<span id="lblSelection"></span>)</div>
+
+                    This is interesting
+                    <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
+                        <input type="radio" id="rbtnInterestingAgree" name="GroupInteresting"/>
+                        <label for="rbtnInterestingAgree">Agree</label>
+
+                        <input type="radio" id="rbtnInterestingDisagree" name="GroupInteresting" />
+                        <label for="rbtnInterestingDisagree">Disagree</label>
+                    </fieldset>
+                    
+                    This is important
+                    <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
+                        <input type="radio" id="rbtnImportantAgree" name="GroupImportant" />
+                        <label for="rbtnImportantAgree">Agree</label>
+                            
+                        <input type="radio" id="rbtnImportantDisagree" name="GroupImportant" />
+                        <label for="rbtnImportantDisagree">Disagree</label>
+                    </fieldset>
+                    
+                    We need action
+                    <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
+                        <input type="radio" id="rbtnActionAgree" name="GroupAction" />
+                        <label for="rbtnActionAgree">Agree</label>
+
+                        <input type="radio" id="rbtnActionDisagree" name="GroupAction" />
+                        <label for="rbtnActionDisagree">Disagree</label>                    
+                    </fieldset>
+
+
+
+                    <p class="x-small">Your information is never shared with any other person or organisation without your permission.</p>
+
+                    <button id="btnSubmit" value="vote" data-inline="true"></button>
+                    <button id="btnNext" value="next" data-inline="true"></button>
+                    <img src="images/ajax-loader-Blue.gif" id="imgALG"/> 
+
+                    <p>Issue Selection Type:</p>
+                    <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
+                        
+                        <input type="radio" id="rbtnViewNewIssues" name="ViewIssues"/>
+                        <label for="rbtnViewNewIssues">New</label> 
+                        
+                        <input type="radio" id="rbtnViewUpdatableIssues" name="ViewIssues"/>
+                        <label for="rbtnViewUpdatableIssues">Updatable</label> 
+                        
+                        <input type="radio" id="rbtnViewAllIssues" name="ViewIssues" />
+                        <label for="rbtnViewAllIssues">All</label> 
+                    </fieldset>
+
+                    <span id="lblErrors" CssClass="Errors"></span>
+
+                    <a id="aSignIn" href="#divSignIn" data-transition="slide">Sign in</a>
+
+                </div>
+
+            </div>
+ 
+            <div data-role="footer">
+                    <h4>Page 1 Footer</h4>
+            </div>
+    </div>
+ 
+    <div data-role="page" id="divSignIn" data-add-back-btn="true" data-theme="b">
+ 
+        <div data-role="header">
+                <h1 id="hSignInOrRegister">Sign in</h1>
+        </div>
+ 
+        <div data-role="content" class = "ui-hide-label">       
+
+            <input type="text" id="tbEmailAddress" name="tbEmailAddress" placeholder="email address" />
+            <label for="tbEmailAddress">email</label>
+
+            <input type="text" id="tbPassword" name="tbPassword" placeholder="password" />
+            <label for="tbPassword">password</label>
+
+            <button id="ButtonSignIn" value="sign in"></button>
+
+        </div>
+ 
+    </div>
+
+
+    <script type="text/javascript">
+
+        $("p").click(function () {
+            $(this).slideUp(); 
+        });
+
+        $("#ButtonSignIn").click(function () {
+            SignIn($("#tbEmailAddress").val(), $("#tbPassword").val()) 
+        });
+
+        $("#ButtonSave").click(function () {
+            saveSettings();
+        });
+
+    </script> 
+
+</body>
+
+</html>
