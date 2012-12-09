@@ -13,6 +13,29 @@
     alert('Connection type: ' + states[networkState]);
 }
 
+function ping() {
+
+    $.ajax(
+        { url: 'http://www.iZavit.com' }
+    )
+    .done(function () { IssueContendersSelect("A"); })
+    .fail(
+        function (xmlHttpRequest, statusText, errorThrown) {
+            navigator.notification.alert('The iZavit webservers cannot be reached at this time. Please try again later', null, 'Web service error')
+        }
+    )
+}
+
+function setHeaderAuthenticationValues(xhr) {
+
+    xhr.setRequestHeader('EmailHash', jsonSettings.emailHash);
+    xhr.setRequestHeader('SessionKey', jsonSettings.sessionKey);
+    xhr.setRequestHeader('VoterID', jsonSettings.voterID);
+    xhr.setRequestHeader('SessionID', jsonSettings.sessionID);
+
+    //alert('Set Authentication Headers ' + jsonSettings.voterID + ' ' + jsonSettings.sessionID)
+
+}
 
 function SignIn(emailAddress, password) {
 
@@ -57,7 +80,7 @@ function SignIn(emailAddress, password) {
                             if (response.d.Success) {
                                 alert('success');
 
-                                saveSettings($("#tbEmailAddress").val(), response.d.SessionKey);
+                                saveSettings(response.d.EmailHash, response.d.SessionKey, response.d.VoterID, response.d.SessionID);
 
                                 IssueContendersSelect();
                             } else {
@@ -119,15 +142,14 @@ function Register(EMailAddress) {
             )
 }
 
-function IssueContendersSelect() {
-
-    alert("Issue Contenders Select");
+function IssueContendersSelect(AllNewOrUpdatable) {
 
     $.ajax(
                 { url: "http://www.izavit.com/WS/iZ.asmx/IssueContendersSelect",
                     contentType: "application/json; charset=utf-8",
                     type: "POST",
-                    data: '{"UniqueUserID":"' + device.uuid + '","SelectionType":"' + "1" + '"}',
+                    beforeSend: setHeaderAuthenticationValues,
+                    data: '{"AllNewOrUpdatable":"' + AllNewOrUpdatable + '"}',
                     dataType: "json"
                 }
             )
@@ -135,13 +157,50 @@ function IssueContendersSelect() {
             .done(
                 function (response) {
                     try {
-                        if (!response.d.Success) {
-                            alert("ICSS" + response.d.Message);
+                        if (response.d.Success) {
+                            IssueContender();
                         } else {
-                            alert("ICS1" + response.d.Message);
+                            alert("ICSF " + response.d.Message);
                         };
                     } catch (e) {
-                        alert("ICSE" + e.Message)
+                        alert("ICSE " + e.Message)
+                    };
+                }
+            )
+
+            .fail(
+                function (xmlHttpRequest, statusText, errorThrown) {
+                    alert("XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                      + ",\nStatus Text: " + statusText
+                      + ",\nError Thrown: " + errorThrown)
+                }
+            )
+}
+
+function IssueContender() {
+
+    //alert('Issue Contender');
+
+    $.ajax(
+                { url: "http://www.izavit.com/WS/iZ.asmx/IssueContender",
+                    contentType: "application/json; charset=utf-8",
+                    type: "POST",
+                    beforeSend: setHeaderAuthenticationValues,
+                    data: '{}',
+                    dataType: "json"
+                }
+            )
+
+            .done(
+                function (response) {
+                    try {
+                        if (response.d.ResultBasic.Success) {
+                            alert("ICS " + response.d.Issue);
+                        } else {
+                            alert("ICF " + response.d.ResultBasic.Message);
+                        };
+                    } catch (e) {
+                        alert("ICE " + e.Message)
                     };
                 }
             )

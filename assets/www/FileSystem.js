@@ -5,7 +5,7 @@
     var FILENAME = 'settings.txt',
 
         stringSettings = "",
-        jsonSettings = { emailAddress: "", sessionKey: "" }
+        jsonSettings = { emailHash:"", sessionKey:"", voterID :"", sessionID:"" }
 
         failCallBack = function (msg) {
             return function () {
@@ -79,7 +79,7 @@ function readSettings() {
                     //alert(jsonSettings.emailAddress);
 
                     //If we don't have an email or session key, get user to sign in / register
-                    if (jsonSettings.emailAddress == null || jsonSettings.emailAddress == '' || jsonSettings.sessionKey == null || jsonSettings.sessionKey == '') {
+                    if (jsonSettings.emailHash == null || jsonSettings.emailHash == '' || jsonSettings.sessionKey == null || jsonSettings.sessionKey == '') {
                         promptRegistration();
                     }
                     else {
@@ -103,7 +103,7 @@ function promptRegistration() {
     $("#aSignIn").click();
 }
 
-function saveSettings(emailAddress, sessionKey) {
+function saveSettings(emailHash, sessionKey, voterID, sessionID) {
 
     if (file.writer.available) {
         file.writer.available = false;
@@ -112,11 +112,13 @@ function saveSettings(emailAddress, sessionKey) {
             file.writer.object.seek(0);
         }
 
-        if (!jsonSettings) { jsonSettings = { emailAddress: "", sessionKey: ""} };
-        jsonSettings.emailAddress = emailAddress;
+        if (!jsonSettings) { jsonSettings = { emailHash: "", sessionKey: "", voterID:"", sessionID:""} };
+        jsonSettings.emailHash = emailHash;
         jsonSettings.sessionKey = sessionKey;
-        stringSettings = JSON.stringify(jsonSettings).toString();
+        jsonSettings.voterID = voterID;
+        jsonSettings.sessionID = sessionID;
 
+        stringSettings = JSON.stringify(jsonSettings).toString();
         file.writer.object.write(stringSettings);
 
         alert('saved');

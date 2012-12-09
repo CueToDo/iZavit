@@ -51,7 +51,7 @@
 
             navigator.splashscreen.hide();
 
-            if (navigator.network.connection.type == Connection.NONE) { $.mobile.changePage($('#divNoNetwork')); };
+            if (navigator.network.connection.type == Connection.NONE) { $.mobile.changePage($('#divNoNetwork')); } else ping(); ;
 
         }, false);
 
@@ -193,6 +193,18 @@
 
         $("#ButtonSave").click(function () {
             saveSettings();
+        });
+
+        $("#rbtnViewNewIssues").click(function () {
+            IssueContendersSelect("N");
+        });
+
+        $("#rbtnViewUpdatableIssues").click(function () {
+            IssueContendersSelect("U");
+        });
+
+        $("#rbtnViewAllIssues").click(function () {
+            IssueContendersSelect("A");
         });
 
     </script> 
