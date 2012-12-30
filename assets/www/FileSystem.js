@@ -1,11 +1,10 @@
 ﻿//https://gist.github.com/1904992
 //http://blog.safaribooksonline.com/2012/02/29/phonegap-storing-and-retrieving-with-the-filesystem/
 
-        
     var FILENAME = 'settings.txt',
 
-        stringSettings = "",
-        jsonSettings = { emailHash:"", sessionKey:"", voterID :"", sessionID:"" }
+        fsStringSettings = "",
+        fsJsonSettings = { emailHash:"", sessionKey:"", voterID :"", sessionID:"" },
 
         failCallBack = function (msg) {
             return function () {
@@ -19,26 +18,44 @@
         };
 
 
-    document.addEventListener('deviceready', function () {
+document.addEventListener('deviceready', function () {
 
-        //won't fire when you 
-        //super.setBooleanProperty("loadInWebView", true);
+    //won't fire when you 
+    //super.setBooleanProperty("loadInWebView", true);
 
-        //Read saved settings from FileSystem
-        var fail = failCallBack('requestFileSystem');
-        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
+    //Read saved settings from FileSystem
+    var fail = failCallBack('requestFileSystem');
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFS, fail);
 
-    }, false);
+}, false);
 
+
+function DirShite(fs) {
+
+    alert('1');
+
+    //Callback functions
+    var fail = failCallBack('gotFS/getDirectory');
+    alert('2');
+    var success = null;// gotDirectory();
+
+    alert('3');
+
+    //Get/Create Directory
+    var entry = fs.root;
+    alert(DIRECTORY);
+    entry.getDirectory(DIRECTORY, { create: true, exclusive: false }, success, fail);
+    alert('5');
+}
 
 function gotFS(fs) {
-    var fail = failCallBack('getFile');
+    var fail = failCallBack('gotDirectory/getFile');
     fs.root.getFile(FILENAME, { create: true, exclusive: false }, gotFileEntry, fail);
 }
 
 function gotFileEntry(fileEntry) {
 
-    var fail = failCallBack('createWriter');
+    var fail = failCallBack('gotFileEntry/createWriter');
     file.entry = fileEntry;
     
     fileEntry.createWriter(gotFileWriter, fail);
@@ -52,11 +69,9 @@ function gotFileWriter(fileWriter) {
 }
 
 
-function readSettings() {
+function fsReadSettings() {
     
     if (file.entry) {
-
-
 
         file.entry.file(function (dbFile) {
 
@@ -65,26 +80,26 @@ function readSettings() {
 
 
 
-                stringSettings = evt.target.result.toString();
+                fsStringSettings = evt.target.result.toString();
 
-                if (stringSettings == null || stringSettings == '') {
+                if (fsStringSettings == null || fsStringSettings == '') {
                     promptRegistration();
                 }
                 else {
                     
-                    //alert(stringSettings);
+                    //alert(fsStringSettings);
 
-                    jsonSettings = jQuery.parseJSON(stringSettings);
+                    fsJsonSettings = jQuery.parseJSON(fsStringSettings);
 
-                    //alert(jsonSettings.emailAddress);
+                    //alert(fsJsonSettings.emailAddress);
 
                     //If we don't have an email or session key, get user to sign in / register
-                    if (jsonSettings.emailHash == null || jsonSettings.emailHash == '' || jsonSettings.sessionKey == null || jsonSettings.sessionKey == '') {
+                    if (fsJsonSettings.emailHash == null || fsJsonSettings.emailHash == '' || fsJsonSettings.sessionKey == null || fsJsonSettings.sessionKey == '') {
                         promptRegistration();
                     }
                     else {
                         //tbEmailAddress in html file
-                        $("#tbEmailAddress").val(jsonSettings.emailAddress);
+                        $("#tbEmailAddress").val(fsJsonSettings.emailAddress);
                     }
                 }
 
@@ -97,13 +112,7 @@ function readSettings() {
     return false;
 }
 
-function promptRegistration() {
-    $("#hSignInOrRegister").html("register");
-    $("#ButtonSignIn").html("register");
-    $("#aSignIn").click();
-}
-
-function saveSettings(emailHash, sessionKey, voterID, sessionID) {
+function fsSaveSettings(emailHash, sessionKey, voterID, sessionID) {
 
     if (file.writer.available) {
         file.writer.available = false;
@@ -112,14 +121,14 @@ function saveSettings(emailHash, sessionKey, voterID, sessionID) {
             file.writer.object.seek(0);
         }
 
-        if (!jsonSettings) { jsonSettings = { emailHash: "", sessionKey: "", voterID:"", sessionID:""} };
-        jsonSettings.emailHash = emailHash;
-        jsonSettings.sessionKey = sessionKey;
-        jsonSettings.voterID = voterID;
-        jsonSettings.sessionID = sessionID;
+        if (!fsJsonSettings) { fsJsonSettings = { emailHash: "", sessionKey: "", voterID:"", sessionID:""} };
+        fsJsonSettings.emailHash = emailHash;
+        fsJsonSettings.sessionKey = sessionKey;
+        fsJsonSettings.voterID = voterID;
+        fsJsonSettings.sessionID = sessionID;
 
-        stringSettings = JSON.stringify(jsonSettings).toString();
-        file.writer.object.write(stringSettings);
+        fsStringSettings = JSON.stringify(fsJsonSettings).toString();
+        file.writer.object.write(fsStringSettings);
 
         alert('saved');
     }

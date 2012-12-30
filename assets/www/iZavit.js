@@ -1,5 +1,5 @@
 ﻿function checkConnection() {
-    var networkState = navigator.network.connection.type;
+    var networkState = navigator.connection.type;
 
     var states = {};
     states[Connection.UNKNOWN] = 'Unknown connection';
@@ -18,7 +18,7 @@ function ping() {
     $.ajax(
         { url: 'http://www.iZavit.com' }
     )
-    .done(function () { IssueContendersSelect("A"); })
+    .done(function () { if (lsJsonSettings.emailHash) {IssueContendersSelect("A")} })
     .fail(
         function (xmlHttpRequest, statusText, errorThrown) {
             navigator.notification.alert('The iZavit webservers cannot be reached at this time. Please try again later', null, 'Web service error')
@@ -28,13 +28,20 @@ function ping() {
 
 function setHeaderAuthenticationValues(xhr) {
 
-    xhr.setRequestHeader('EmailHash', jsonSettings.emailHash);
-    xhr.setRequestHeader('SessionKey', jsonSettings.sessionKey);
-    xhr.setRequestHeader('VoterID', jsonSettings.voterID);
-    xhr.setRequestHeader('SessionID', jsonSettings.sessionID);
+    xhr.setRequestHeader('EmailHash', lsJsonSettings.emailHash);
+    xhr.setRequestHeader('SessionKey', lsJsonSettings.sessionKey);
+    xhr.setRequestHeader('VoterID', lsJsonSettings.voterID);
+    xhr.setRequestHeader('SessionID', lsJsonSettings.sessionID);
 
     //alert('Set Authentication Headers ' + jsonSettings.voterID + ' ' + jsonSettings.sessionID)
 
+}
+
+function promptRegistration() {
+    alert("prompting");
+    $("#hSignInOrRegister").html("register");
+    $("#ButtonSignIn").html("register");
+    $("#aSignIn").click();
 }
 
 function SignIn(emailAddress, password) {
@@ -80,7 +87,7 @@ function SignIn(emailAddress, password) {
                             if (response.d.Success) {
                                 alert('success');
 
-                                saveSettings(response.d.EmailHash, response.d.SessionKey, response.d.VoterID, response.d.SessionID);
+                                lsSaveSettings(response.d.EmailHash, response.d.SessionKey, response.d.VoterID, response.d.SessionID);
 
                                 IssueContendersSelect();
                             } else {
@@ -163,7 +170,7 @@ function IssueContendersSelect(AllNewOrUpdatable) {
                             alert("ICSF " + response.d.Message);
                         };
                     } catch (e) {
-                        alert("ICSE " + e.Message)
+                        alert(e.Message)
                     };
                 }
             )
@@ -195,7 +202,9 @@ function IssueContender() {
                 function (response) {
                     try {
                         if (response.d.ResultBasic.Success) {
-                            alert("ICS " + response.d.Issue);
+                            $("#hIssueTitle").text(response.d.Issue);
+                            $("#divIssueContext").text(response.d.ContextHTML);
+                            $("#divIssueContext2").text(response.d.ContextHTML2);
                         } else {
                             alert("ICF " + response.d.ResultBasic.Message);
                         };
