@@ -30,10 +30,8 @@ function setHeaderAuthenticationValues(xhr) {
 
     xhr.setRequestHeader('EmailHash', lsJsonSettings.emailHash);
     xhr.setRequestHeader('SessionKey', lsJsonSettings.sessionKey);
-    xhr.setRequestHeader('VoterID', lsJsonSettings.voterID);
-    xhr.setRequestHeader('SessionID', lsJsonSettings.sessionID);
 
-    //alert('Set Authentication Headers ' + jsonSettings.voterID + ' ' + jsonSettings.sessionID)
+    alert('Set Authentication Headers ' + lsJsonSettings.emailHash + ' ' + lsJsonSettings.sessionKey)
 
 }
 
@@ -87,8 +85,8 @@ function SignIn(emailAddress, password) {
                             if (response.d.Success) {
                                 alert('success');
 
-                                lsSaveSettings(response.d.EmailHash, response.d.SessionKey, response.d.VoterID, response.d.SessionID);
-
+                                lsSaveSettings(response.d.EmailHash, response.d.SessionKey);
+                                alert('saved');
                                 IssueContendersSelect();
                             } else {
                                 alert('failed');
@@ -149,8 +147,19 @@ function Register(EMailAddress) {
             )
 }
 
+function quitiZavit() {
+    navigator.app.exitApp(); 
+}
+
+function MustSignIn() {
+    alert("Please sign in");
+    document.addEventListener("backbutton", quitiZavit, false);
+    $.mobile.changePage($('#divSignIn'));
+}
+
 function IssueContendersSelect(AllNewOrUpdatable) {
 
+    alert('IssueContendersSelect');
     $.ajax(
                 { url: "http://www.izavit.com/WS/iZ.asmx/IssueContendersSelect",
                     contentType: "application/json; charset=utf-8",
@@ -164,10 +173,14 @@ function IssueContendersSelect(AllNewOrUpdatable) {
             .done(
                 function (response) {
                     try {
-                        if (response.d.Success) {
-                            IssueContender();
-                        } else {
+                        alert('Auth: ' + response.d.Authenticated);
+                        alert(response.d.Message);
+                        if (!response.d.Authenticated) {
+                            MustSignIn();
+                        } else if (!response.d.Success) {
                             alert("ICSF " + response.d.Message);
+                        } else {
+                            IssueContender();
                         };
                     } catch (e) {
                         alert(e.Message)
@@ -186,7 +199,7 @@ function IssueContendersSelect(AllNewOrUpdatable) {
 
 function IssueContender() {
 
-    //alert('Issue Contender');
+    alert('Issue Contender');
 
     $.ajax(
                 { url: "http://www.izavit.com/WS/iZ.asmx/IssueContender",

@@ -1,4 +1,4 @@
-﻿var lsJsonSettings = { emailHash:"", sessionKey:"", voterID :"", sessionID:"" };
+﻿var lsJsonSettings = { emailHash:"", sessionKey:"" };
 
 document.addEventListener('deviceready', function () {
 
@@ -7,26 +7,18 @@ document.addEventListener('deviceready', function () {
 
     //Read saved settings from LocalStorage
     lsJsonSettings.emailHash = window.localStorage.getItem("emailHash");
+    lsJsonSettings.sessionKey = window.localStorage.getItem("sessionKey");
 
-    if (!lsJsonSettings.emailHash) { promptRegistration(); }
-    else {
-        lsJsonSettings.sessionKey = window.localStorage.getItem("sessionKey");
-        lsJsonSettings.voterID = window.localStorage.getItem("voterID");
-        lsJsonSettings.sessionID = window.localStorage.getItem("sessionID");
-    };
+    if (!lsJsonSettings.emailHash) { promptRegistration()};
 
 }, false);
 
-function lsSaveSettings(emailHash, sessionKey, voterID, sessionID) {
+function lsSaveSettings(emailHash, sessionKey) {
 
     lsJsonSettings.emailHash = emailHash;
     lsJsonSettings.sessionKey = sessionKey;
-    lsJsonSettings.voterID = voterID;
-    lsJsonSettings.sessionID = sessionID;
 
     window.localStorage.setItem("emailHash", emailHash);
     window.localStorage.setItem("sessionKey", sessionKey);
-    window.localStorage.setItem("voterID", voterID);
-    window.localStorage.setItem("sessionID", sessionID);
 
 }
