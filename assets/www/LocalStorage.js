@@ -22,3 +22,6 @@ function lsSaveSettings(emailHash, sessionKey) {
     window.localStorage.setItem("sessionKey", sessionKey);
 
 }
+
+function IssueIdSave(issueID){window.localStorage.setItem("issueId", issueID)}
+function IssueId(){return window.localStorage.getItem("issueId")}

@@ -13,12 +13,18 @@
     alert('Connection type: ' + states[networkState]);
 }
 
+function AllNewOrUpdatable(){
+    if($("#rbtnViewNewIssues").is(':checked')){return "N"}
+    else if($("#rbtnViewUpdatableIssues").is(':checked')) {return "U"}
+    else return "A"
+}
+
 function ping() {
 
     $.ajax(
         { url: 'http://www.iZavit.com' }
     )
-    .done(function () { if (lsJsonSettings.emailHash) {IssueContendersSelect("A")} })
+    .done(function () { if (lsJsonSettings.emailHash) {IssueContendersSelect()} })
     .fail(
         function (xmlHttpRequest, statusText, errorThrown) {
             navigator.notification.alert('The iZavit webservers cannot be reached at this time. Please try again later', null, 'Web service error')
@@ -31,14 +37,14 @@ function setHeaderAuthenticationValues(xhr) {
     xhr.setRequestHeader('EmailHash', lsJsonSettings.emailHash);
     xhr.setRequestHeader('SessionKey', lsJsonSettings.sessionKey);
 
-    alert('Set Authentication Headers ' + lsJsonSettings.emailHash + ' ' + lsJsonSettings.sessionKey)
+    //alert('Set Authentication Headers ' + lsJsonSettings.emailHash + ' ' + lsJsonSettings.sessionKey)
 
 }
 
 function promptRegistration() {
-    alert("prompting");
+    //alert("prompting");
     $("#hSignInOrRegister").html("register");
-    $("#ButtonSignIn").html("register");
+    $("#buttonSignIn").html("register");
     $("#aSignIn").click();
 }
 
@@ -83,23 +89,24 @@ function SignIn(emailAddress, password) {
                     function (response) {
                         try {
                             if (response.d.Success) {
-                                alert('success');
-
+                                //alert('Sign in success');
+                                
                                 lsSaveSettings(response.d.EmailHash, response.d.SessionKey);
-                                alert('saved');
+                                //alert('Sign in details saved');
+
                                 IssueContendersSelect();
                             } else {
-                                alert('failed');
+                                alert(response.d.Message);
                             };
                         } catch (e) {
-                            alert("SessionStatusCheck" + e.Message)
+                            alert("Sign in error: " + e.Message)
                         };
                     }
                 )
 
                 .fail(
                     function (xmlHttpRequest, statusText, errorThrown) {
-                        alert("XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                        alert("Sign in fail: XML Http Request: " + JSON.stringify(xmlHttpRequest)
                           + ",\nStatus Text: " + statusText
                           + ",\nError Thrown: " + errorThrown)
                     }
@@ -107,7 +114,7 @@ function SignIn(emailAddress, password) {
 
 
     } catch (err) {
-        alert("PSCE" + err.Message);
+        alert("Sign in error caught: " + err.Message);
     }
 
 }
@@ -140,7 +147,7 @@ function Register(EMailAddress) {
 
             .fail(
                 function (xmlHttpRequest, statusText, errorThrown) {
-                    alert("XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                    alert("Registration failure: XML Http Request: " + JSON.stringify(xmlHttpRequest)
                       + ",\nStatus Text: " + statusText
                       + ",\nError Thrown: " + errorThrown)
                 }
@@ -157,82 +164,144 @@ function MustSignIn() {
     $.mobile.changePage($('#divSignIn'));
 }
 
-function IssueContendersSelect(AllNewOrUpdatable) {
+function IssueContendersSelect() {
 
-    alert('IssueContendersSelect');
+    ShowElement('imgALG');
+
+    //alert('IssueContendersSelect');
     $.ajax(
-                { url: "http://www.izavit.com/WS/iZ.asmx/IssueContendersSelect",
-                    contentType: "application/json; charset=utf-8",
-                    type: "POST",
-                    beforeSend: setHeaderAuthenticationValues,
-                    data: '{"AllNewOrUpdatable":"' + AllNewOrUpdatable + '"}',
-                    dataType: "json"
-                }
-            )
+        { url: "http://www.izavit.com/WS/iZ.asmx/IssueContendersSelect",
+            contentType: "application/json; charset=utf-8",
+            type: "POST",
+            beforeSend: setHeaderAuthenticationValues,
+            data: '{"AllNewOrUpdatable":"' + AllNewOrUpdatable() + '"}',
+            dataType: "json"
+        }
+    )
 
-            .done(
-                function (response) {
-                    try {
-                        alert('Auth: ' + response.d.Authenticated);
-                        alert(response.d.Message);
-                        if (!response.d.Authenticated) {
-                            MustSignIn();
-                        } else if (!response.d.Success) {
-                            alert("ICSF " + response.d.Message);
-                        } else {
-                            IssueContender();
-                        };
-                    } catch (e) {
-                        alert(e.Message)
-                    };
-                }
-            )
+    .done(
+        function (response) {
+            try {
+                //alert('Auth: ' + response.d.Authenticated);
+                //alert(response.d.Message);
+                if (!response.d.Authenticated) {
+                    MustSignIn();
+                } else if (!response.d.Success) {
+                    alert("Issue Contenders Select not successful: " + response.d.Message);
+                } else {
+                    IssueContender();
+                };
+            } catch (e) {
+                alert("Issue Contenders Select Error: " + e.Message)
+            };
+        }
+    )
 
-            .fail(
-                function (xmlHttpRequest, statusText, errorThrown) {
-                    alert("XML Http Request: " + JSON.stringify(xmlHttpRequest)
-                      + ",\nStatus Text: " + statusText
-                      + ",\nError Thrown: " + errorThrown)
-                }
-            )
+    .fail(
+        function (xmlHttpRequest, statusText, errorThrown) {
+            alert("Issue Contenders Select Fail XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                + ",\nStatus Text: " + statusText
+                + ",\nError Thrown: " + errorThrown)
+        }
+    )
+
+    .always(function(){HideElement('imgALG');})
 }
 
 function IssueContender() {
 
-    alert('Issue Contender');
+    //ShowElement('imgALG');
 
     $.ajax(
-                { url: "http://www.izavit.com/WS/iZ.asmx/IssueContender",
-                    contentType: "application/json; charset=utf-8",
-                    type: "POST",
-                    beforeSend: setHeaderAuthenticationValues,
-                    data: '{}',
-                    dataType: "json"
-                }
-            )
+        { url: "http://www.izavit.com/WS/iZ.asmx/IssueContender",
+            contentType: "application/json; charset=utf-8",
+            type: "POST",
+            beforeSend: setHeaderAuthenticationValues,
+            data: '{"AllNewOrUpdatable":"' + AllNewOrUpdatable() + '"}',
+            dataType: "json"
+        }
+    )
 
-            .done(
-                function (response) {
-                    try {
-                        if (response.d.ResultBasic.Success) {
-                            $("#hIssueTitle").text(response.d.Issue);
-                            $("#divIssueContext").text(response.d.ContextHTML);
-                            $("#divIssueContext2").text(response.d.ContextHTML2);
-                        } else {
-                            alert("ICF " + response.d.ResultBasic.Message);
-                        };
-                    } catch (e) {
-                        alert("ICE " + e.Message)
-                    };
-                }
-            )
+    .done(
+        function (response) {
+            try {
 
-            .fail(
-                function (xmlHttpRequest, statusText, errorThrown) {
-                    alert("XML Http Request: " + JSON.stringify(xmlHttpRequest)
-                      + ",\nStatus Text: " + statusText
-                      + ",\nError Thrown: " + errorThrown)
-                }
-            )
+                if (response.d.ResultBasic.Success) {
 
+                    alert(AllNewOrUpdatable() + ' ' + response.d.IssueID);
+
+                    IssueIdSave(response.d.IssueID);
+
+                    if(response.d.Reselected){alert("Issues were reselected: " + response.d.ReselectNewUpdatableOrAll)}
+
+                    $("#hIssueTitle").text(response.d.Issue);
+                    $("#divIssueContext").text(response.d.ContextHTML);
+                    $("#divIssueContext2").text(response.d.ContextHTML2);
+                } else {
+                    alert("Issue Contender fetch not successful: " + response.d.ResultBasic.Message);
+                };
+            } catch (e) {
+                alert("Issue Contender fetch error: " + e.Message)
+            };
+        }
+    )
+
+    .fail(
+        function (xmlHttpRequest, statusText, errorThrown) {
+            alert("Issue Contender fetch failed XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                + ",\nStatus Text: " + statusText
+                + ",\nError Thrown: " + errorThrown)
+        }
+    )
+
+    //.always(function(){HideElement('imgALG');})
+
+}
+
+function Vote() {
+
+    ShowElement('imgALG');
+
+    var interesting = $("#chkInteresting").is(':checked'),
+        important = $("#chkImportant").is(':checked'),
+        actionRequired = $("#chkActionRequired").is(':checked');
+
+    $.ajax(
+        { url: "http://www.izavit.com/WS/iZ.asmx/IssueVote",
+            contentType: "application/json; charset=utf-8",
+            type: "POST",
+            beforeSend: setHeaderAuthenticationValues,
+            data: '{"IssueID":"' + IssueId() + '", "Interesting":"' + interesting + '", "Important":"' + important + '", "ActionRequired":"' + actionRequired + '", "AllNewOrUpdatable":"' + AllNewOrUpdatable() + '"}',
+            dataType: "json"
+        }
+    )
+
+    .done(
+        function (response) {
+            try {
+                if (response.d.ResultBasic.Success) {
+                    IssueContender();
+                } else {
+                    alert("Vote not successful: " + response.d.ResultBasic.Message);
+                };
+            } catch (e) {
+                alert("Vote error: " + e.Message)
+            };
+        }    
+    )
+
+    .fail(
+            function (xmlHttpRequest, statusText, errorThrown) {
+                alert("Vote failed XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                    + ",\nStatus Text: " + statusText
+                    + ",\nError Thrown: " + errorThrown)    
+            }
+    )
+
+    .always(function(){HideElement('imgALG');})
+
+}
+
+function NextIssue() {
+    IssueContender();
 }
