@@ -228,8 +228,6 @@ function IssueContender() {
 
                 if (response.d.ResultBasic.Success) {
 
-                    alert(AllNewOrUpdatable() + ' ' + response.d.IssueID);
-
                     IssueIdSave(response.d.IssueID);
 
                     if(response.d.Reselected){alert("Issues were reselected: " + response.d.ReselectNewUpdatableOrAll)}
@@ -237,6 +235,13 @@ function IssueContender() {
                     $("#hIssueTitle").text(response.d.Issue);
                     $("#divIssueContext").text(response.d.ContextHTML);
                     $("#divIssueContext2").text(response.d.ContextHTML2);
+
+                    //prop/attr http://api.jquery.com/prop/
+                    //.checkboxradio("refresh") http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
+                    $("#chkInteresting").prop("checked", response.d.Interesting).checkboxradio("refresh"); 
+                    $("#chkImportant").prop("checked", response.d.Important).checkboxradio("refresh");
+                    $("#chkActionRequired").prop("checked", response.d.ActionRequired).checkboxradio("refresh");
+
                 } else {
                     alert("Issue Contender fetch not successful: " + response.d.ResultBasic.Message);
                 };
