@@ -24,7 +24,11 @@ function ping() {
     $.ajax(
         { url: 'http://www.iZavit.com' }
     )
-    .done(function () { if (lsJsonSettings.emailHash) {IssueContendersSelect()} })
+    .done(function () { 
+        //Why are we testing lsJsonSettings here???
+        //What happens if the test fails???
+        if (lsJsonSettings.emailHash) {IssueContendersSelect()} }
+    )
     .fail(
         function (xmlHttpRequest, statusText, errorThrown) {
             navigator.notification.alert('The iZavit webservers cannot be reached at this time. Please try again later', null, 'Web service error')
@@ -159,6 +163,7 @@ function quitiZavit() {
 }
 
 function MustSignIn() {
+    //TODO Change this alert to a notification
     alert("Please sign in");
     document.addEventListener("backbutton", quitiZavit, false);
     $.mobile.changePage($('#divSignIn'));
@@ -185,13 +190,17 @@ function IssueContendersSelect() {
                 //alert('Auth: ' + response.d.Authenticated);
                 //alert(response.d.Message);
                 if (!response.d.Authenticated) {
+                    navigator.splashscreen.hide(); 
                     MustSignIn();
                 } else if (!response.d.Success) {
+                    navigator.splashscreen.hide(); 
                     alert("Issue Contenders Select not successful: " + response.d.Message);
                 } else {
+                    //must wait a little longer before hiding splash screen
                     IssueContender();
                 };
             } catch (e) {
+                navigator.splashscreen.hide(); 
                 alert("Issue Contenders Select Error: " + e.Message)
             };
         }
@@ -199,6 +208,7 @@ function IssueContendersSelect() {
 
     .fail(
         function (xmlHttpRequest, statusText, errorThrown) {
+            navigator.splashscreen.hide(); 
             alert("Issue Contenders Select Fail XML Http Request: " + JSON.stringify(xmlHttpRequest)
                 + ",\nStatus Text: " + statusText
                 + ",\nError Thrown: " + errorThrown)
@@ -210,7 +220,9 @@ function IssueContendersSelect() {
 
 function IssueContender() {
 
-    //ShowElement('imgALG');
+    //navigator.splashscreen.hide(); is in "always"
+
+    ShowElement('imgALG');
 
     $.ajax(
         { url: "http://www.izavit.com/WS/iZ.asmx/IssueContender",
@@ -259,7 +271,12 @@ function IssueContender() {
         }
     )
 
-    //.always(function(){HideElement('imgALG');})
+    .always(function(){            
+        //When the app first loads, we call ping, IssueContendersSelect and IssueContender
+        //All must complete before hiding the splash screen
+        navigator.splashscreen.hide(); 
+        HideElement('imgALG');}
+    )
 
 }
 

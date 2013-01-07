@@ -9,6 +9,9 @@
     
     <!--http://en.wikipedia.org/wiki/JQuery_Mobile-->
 
+    <!-- Splash Screens http://stackoverflow.com/questions/7517443/eclipse-android-phonegap-config-xml-not-working 
+    http://developer.android.com/guide/practices/screens_support.html -->
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link type="text/css" href="jquery.mobile-1.2.0.min.css" rel="stylesheet" />
@@ -53,7 +56,6 @@
             //won't fire when you 
             //super.setBooleanProperty("loadInWebView", true);
 
-            navigator.splashscreen.hide();
             HideElement('imgALG');
 
             /*
@@ -67,6 +69,7 @@
             if (navigator.network.connection.type == Connection.NONE) {
                 document.addEventListener("backbutton", quitiZavit, false);
                 $.mobile.changePage($('#divNoNetwork'));
+                navigator.splashscreen.hide();
             } else ping();
 
         }, false);

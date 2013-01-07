@@ -10,8 +10,8 @@ public class Izavit extends DroidGap {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //super.setIntegerProperty("splashscreen", R.drawable.ic_launcher);
-        super.loadUrl("file:///android_asset/www/iZavit.htm");
+        super.setIntegerProperty("splashscreen", R.drawable.splash);
+        super.loadUrl("file:///android_asset/www/iZavit.htm",20000);//Allow max 20 seconds for app to become ready
     }
 
     @Override
