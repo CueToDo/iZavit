@@ -242,7 +242,10 @@ function IssueContender() {
 
                     IssueIdSave(response.d.IssueID);
 
-                    if(response.d.Reselected){alert("Issues were reselected: " + response.d.ReselectNewUpdatableOrAll)}
+                    if(response.d.Reselected){
+                        //alert("Issues were reselected: " + response.d.ReselectNewUpdatableOrAll)
+                        navigator.notification.alert(response.d.ReselectNewUpdatableOrAll, null, 'Issues were reselected')
+                    }
 
                     $("#hIssueTitle").text(response.d.Issue);
                     $("#divIssueContext").text(response.d.ContextHTML);
@@ -326,4 +329,8 @@ function Vote() {
 
 function NextIssue() {
     IssueContender();
+}
+
+function onMenuKeyDown() {
+    $.mobile.changePage($('#divSettings'));
 }
