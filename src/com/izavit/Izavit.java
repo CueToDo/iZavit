@@ -14,9 +14,12 @@ public class Izavit extends DroidGap {
         super.loadUrl("file:///android_asset/www/iZavit.htm",20000);//Allow max 20 seconds for app to become ready
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    
+    //http://stackoverflow.com/questions/12003757/disabling-menu-button-in-android-using-phonegap
+    //@Override
+    /*public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
-    }
+    }*/
+    
 }
