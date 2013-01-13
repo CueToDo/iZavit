@@ -14,8 +14,8 @@
 }
 
 function AllNewOrUpdatable(){
-    if($("#rbtnViewNewIssues").is(':checked')){return "N"}
-    else if($("#rbtnViewUpdatableIssues").is(':checked')) {return "U"}
+    if($("#rbtnSelectNewIssues").is(':checked')){return "N"}
+    else if($("#rbtnSelectUpdatableIssues").is(':checked')) {return "U"}
     else return "A"
 }
 
@@ -171,7 +171,8 @@ function MustSignIn() {
 
 function IssueContendersSelect() {
 
-    ShowElement('imgALG');
+    //ShowElement('imgALG');
+    ShowElement('spinner');
 
     //alert('IssueContendersSelect');
     $.ajax(
@@ -215,14 +216,19 @@ function IssueContendersSelect() {
         }
     )
 
-    .always(function(){HideElement('imgALG');})
+    .always(function(){
+            //HideElement('imgALG');
+            HideElement('spinner');
+        }
+    )
 }
 
 function IssueContender() {
 
     //navigator.splashscreen.hide(); is in "always"
 
-    ShowElement('imgALG');
+    //ShowElement('imgALG');
+    ShowElement('spinner');
 
     $.ajax(
         { url: "http://www.izavit.com/WS/iZ.asmx/IssueContender",
@@ -242,11 +248,6 @@ function IssueContender() {
 
                     IssueIdSave(response.d.IssueID);
 
-                    if(response.d.Reselected){
-                        //alert("Issues were reselected: " + response.d.ReselectNewUpdatableOrAll)
-                        navigator.notification.alert(response.d.ReselectNewUpdatableOrAll, null, 'Issues were reselected')
-                    }
-
                     $("#hIssueTitle").text(response.d.Issue);
                     $("#divIssueContext").text(response.d.ContextHTML);
                     $("#divIssueContext2").text(response.d.ContextHTML2);
@@ -256,6 +257,22 @@ function IssueContender() {
                     $("#chkInteresting").prop("checked", response.d.Interesting).checkboxradio("refresh"); 
                     $("#chkImportant").prop("checked", response.d.Important).checkboxradio("refresh");
                     $("#chkActionRequired").prop("checked", response.d.ActionRequired).checkboxradio("refresh");
+                    
+                    $("#spnIssueNumber").text(response.d.Selection);
+                    $("#spnIssueTotalSelected").text(response.d.Total);spnIssueTotalSelected
+                    $("#spnLatestStartDate").text(response.d.LatestStartDate);
+
+                    $("#spnReselectionMessageNew").hide();
+                    $("#spnReselectionMessageUpdatable").hide();
+                    $("#spnReselectionMessageAll").hide();
+
+                    if(response.d.Reselected){
+                        switch(response.d.ReselectNewUpdatableOrAll){
+                            case "N": $("#spnReselectionMessageNew").show(); break;
+                            case "U": $("#spnReselectionMessageUpdatable").show(); break;
+                            case "A": $("#spnReselectionMessageAll").show(); break;
+                        }
+                    }
 
                 } else {
                     alert("Issue Contender fetch not successful: " + response.d.ResultBasic.Message);
@@ -278,14 +295,17 @@ function IssueContender() {
         //When the app first loads, we call ping, IssueContendersSelect and IssueContender
         //All must complete before hiding the splash screen
         navigator.splashscreen.hide(); 
-        HideElement('imgALG');}
+        //HideElement('imgALG');
+        HideElement('spinner');
+        }
     )
 
 }
 
 function Vote() {
 
-    ShowElement('imgALG');
+    //ShowElement('imgALG');
+    ShowElement('spinner');
 
     var interesting = $("#chkInteresting").is(':checked'),
         important = $("#chkImportant").is(':checked'),
@@ -323,7 +343,11 @@ function Vote() {
             }
     )
 
-    .always(function(){HideElement('imgALG');})
+    .always(function(){
+            //HideElement('imgALG');
+            HideElement('spinner');
+        }
+    )
 
 }
 

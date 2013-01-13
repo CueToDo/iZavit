@@ -16,6 +16,7 @@
 
     <link type="text/css" href="jquery.mobile-1.2.0.min.css" rel="stylesheet" />
     <link type="text/css" href="Mobile.css" rel="stylesheet" />
+    <link type="text/css" href="Spinner.css" rel="stylesheet" />
 
     <script src="jquery-1.8.2.min.js" type="text/javascript"></script>
     <script src="jquery.mobile-1.2.0.min.js" type="text/javascript"></script>
@@ -25,9 +26,6 @@
     <script src="LocalStorage.js" type="text/javascript"></script>
     <script src="iZavit.js" type="text/javascript"></script>
     <script src="utility.js" type="text/javascript"></script>
-
-    <script src="jquery.uniform.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="uniform.default.css" type="text/css" media="screen" charset="utf-8" />
 
     <script type="text/javascript" charset="utf-8">
 
@@ -56,7 +54,8 @@
             //won't fire when you 
             //super.setBooleanProperty("loadInWebView", true);
 
-            HideElement('imgALG');
+            //HideElement('imgALG');
+            HideElement('spinner');
 
             /*
             Before Cordova 2.2.0, the Connection object existed at: navigator.network.connection.
@@ -91,22 +90,22 @@
 </head> 
 
 <body> 
+
  
 
     <div data-role="page" id="first" data-theme="a">
  
         <div data-role="header">
-            <h1 id="hIssueTitle">Issue title</h1>
+            <h1 id="hIssueTitle">Connecting to server ...</h1>
         </div>
  
         <div data-role="content">  
 
             <div id="divIssueContext">
-                Context 1
+                Connecting to server ...
             </div>
 
             <div id="divIssueContext2">
-                Context 2
             </div>
 
             <div data-role="fieldcontain">
@@ -117,9 +116,46 @@
                 </fieldset>
             </div>
 
-            <button id="buttonVote" value="vote" data-inline="true"></button>
-            <button id="buttonNextIssue" value="next" data-inline="true"></button>
-            <img src="images/ajax-loader-Blue.gif" id="imgALG"/> 
+            <div>
+
+                <button id="buttonVote" value="vote" data-inline="true"></button>
+                <button id="buttonNextIssue" value="next" data-inline="true"></button>            
+            
+                <!-- http://planitize.tumblr.com/tagged/loading-spinner -->
+
+                <div class="spinner" id="spinner">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                    <div class="bar4"></div>
+                    <div class="bar5"></div>
+                    <div class="bar6"></div>
+                    <div class="bar7"></div>
+                    <div class="bar8"></div>
+                    <div class="bar9"></div>
+                    <div class="bar10"></div>
+                    <div class="bar11"></div>
+                    <div class="bar12"></div>
+                </div>            
+
+            </div>
+
+            <div class="Information">
+                <br />
+                Issue <span id="spnIssueNumber"></span> of <span id="spnIssueTotalSelected"></span> selected.
+            </div>
+
+            <div class="Information">
+                <br />
+                Must start before <span id="spnLatestStartDate"></span>.
+            </div>
+
+            <div class="Information">
+                <br />
+                <span id="spnReselectionMessageNew">New issues were reselected</span>
+                <span id="spnReselectionMessageUpdatable">Updatable issues were reselected</span>
+                <span id="spnReselectionMessageAll">All issues were reselected</span>
+            </div>
 
             <span id="lblErrors" CssClass="Errors"></span>
 
@@ -164,29 +200,54 @@
  
     </div>
 
-    <div data-role="page" id="divSettings" data-add-back-btn="true" data-theme="b">
+    <div data-role="page" id="divSettings" data-add-back-btn="true" data-theme="a">
 
         <div data-role="header">
-            <h1>Settings</h1>
+            <h1>Menu</h1>
         </div>
 
         <div data-role="content" class = "ui-hide-label">
-            <p>Issue Selection Type:</p>
+
+
+            <p>
+                Mode:
+            </p>
+
+            <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
+                <input type="radio" id="rbtnModeCurrentIssues" name="ModeIssues"/>
+                <label for="rbtnModeCurrentIssues">Current</label> 
+                        
+                <input type="radio" id="rbtnModeCandidateIssues" name="ModeIssues"/>
+                <label for="rbtnModeCandidateIssues">Candidates</label> 
+            </fieldset>
+                        
+            <p>
+                Issue Selection Type:
+            </p>
+
             <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
                         
-                <input type="radio" id="rbtnViewNewIssues" name="ViewIssues"/>
-                <label for="rbtnViewNewIssues">New</label> 
+                <input type="radio" id="rbtnSelectNewIssues" name="SelectIssues"/>
+                <label for="rbtnSelectNewIssues">New</label> 
                         
-                <input type="radio" id="rbtnViewUpdatableIssues" name="ViewIssues"/>
-                <label for="rbtnViewUpdatableIssues">Updatable</label> 
+                <input type="radio" id="rbtnSelectUpdatableIssues" name="SelectIssues"/>
+                <label for="rbtnSelectUpdatableIssues">Updatable</label> 
                         
-                <input type="radio" id="rbtnViewAllIssues" name="ViewIssues" />
-                <label for="rbtnViewAllIssues">All</label> 
+                <input type="radio" id="rbtnSelectAllIssues" name="SelectIssues" />
+                <label for="rbtnSelectAllIssues">All</label> 
             </fieldset>  
-        
+
+            <p>
+                End Session
+            </p>
+            <button id="ButtonEnd" value="End"></button>
+
         </div>
           
     </div>
+
+
+
 
     <script type="text/javascript">
 
@@ -210,22 +271,28 @@
             NextIssue();
         });
 
-        $("#rbtnViewNewIssues").click(function () {
+        $("#rbtnSelectNewIssues").click(function () {
             IssueContendersSelect("N");
+            $.mobile.changePage($('#first'));
         });
 
-        $("#rbtnViewUpdatableIssues").click(function () {
+        $("#rbtnSelectUpdatableIssues").click(function () {
             IssueContendersSelect("U");
+            $.mobile.changePage($('#first'));
         });
 
-        $("#rbtnViewAllIssues").click(function () {
+        $("#rbtnSelectAllIssues").click(function () {
             IssueContendersSelect("A");
+            $.mobile.changePage($('#first'));
         });
 
         $("#ButtonQuit").click(function () {
             quitiZavit();
         });
         
+        $("#ButtonEnd").click(function () {
+            quitiZavit();
+        });
 
     </script> 
 

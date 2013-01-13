@@ -1,91 +1,5 @@
-﻿/* Display tables */
-
-    table tr td {background-color: #CCCCCC; color:#000066}
-    table tr th {background-color: #000066; color:#CCCC00}
-
-    table tr th, table tr td {padding:4px;}
-
-    table.TopRow
-        {margin-top:8px; 
-        margin-bottom:8px;}
-    
-    table.NormalRow
-        {margin-top:0px; 
-        margin-bottom:80px;}
-
-    table tr th.TopRow, 
-    div.TopRow 
-        {padding-top:8px; padding-bottom:8px;}
-    
-
-    table tr th.NormalRow, 
-    div.NormalRow 
-        {padding-top:0px; padding-bottom:8px;}
-
-
-
-/* DataEntry tables */
-
-    table.DataEntry
-        {margin:auto;
-        border-spacing:0;
-        border-collapse:collapse;
-        border:solid 2px #000066;}
-    
-    table.DataEntry tr th,
-    table.DataEntry tr td 
-        {padding:8px; 
-        background-color:white;
-        vertical-align:top;}
-
-    table.DataEntry tr th 
-        {text-align:right; 
-        color:Gray}
-    
-    table.DataEntry tr td {}
-
-/* Claims and Balance Datagrids */
-
-    table.DataGrid
-        {margin-left:auto;
-        margin-right:auto;
-        margin-top:20px;
-        margin-bottom:20px;
-        border-spacing:0;
-        border-collapse:collapse;
-        border-left:solid 1px #000066;
-        border-top:solid 1px #000066;
-        border-bottom:solid 1px #000066;}
-
-    table.DataGrid tr.DataGridHead td
-        {background-color:#0000CC;
-        color:White;
-        padding-top:8px;
-        padding-bottom:8px;}
-
-    table.DataGrid tr th,
-    table.DataGrid tr td
-        {padding-left:8px;
-        padding-right:8px;
-        padding-top:2px;
-        padding-bottom:2px;
-        border-right:solid 1px #000066;}
-
-    table.DataGrid tr.AlternatingItem td
-        {background-color:White;}
-    
-div.Content{background-color:#333333; margin-left:auto; margin-right:auto;}    
-
-h1 {margin-top:8px;
-    margin-bottom:8px;
-    color:#CCCCCC;}    
-    
-.Center{text-align:center;}    
+﻿.Center{text-align:center;}    
 .Center * {margin: 0 auto;}
-
-.DisplayNone{display:none;}
-.DisplayInline{display:inline}
-.DisplayTable{display:table;}
 
 .Visibile{visibility:visible;}
 .Hidden, img.Hidden{visibility:hidden;}
@@ -94,6 +8,8 @@ h1 {margin-top:8px;
 
 html.busy, html.busy * {  cursor: wait !important;}  /* http://postpostmodern.com/instructional/global-ajax-cursor-change/ */
 
-.Android{}
+.Information {color:#B0C4DE}
 
 div.Information p {color:Green; margin-bottom:10px; font-weight:normal}
+
+div.inline {float:left}
