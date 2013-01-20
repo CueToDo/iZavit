@@ -4,35 +4,65 @@
 
 <head> 
 
+    <!-- 
+        JQuery Mobile
+        http://en.wikipedia.org/wiki/JQuery_Mobile
+
+        Cross Domain Pages
+            http://stackoverflow.com/questions/11138501/phonegap-for-android-deviceready-not-working
+
+        Anonymous functions
+            http://2007-2010.lovemikeg.com/2008/08/17/a-week-in-javascript-patterns-self-invocation/
+
+        Click event handlers
+            http://api.jquery.com/click/
+
+        Truncated Header text
+            http://stackoverflow.com/questions/8718384/why-is-my-header-text-being-truncated 
+
+        Splash Screens 
+            http://stackoverflow.com/questions/7517443/eclipse-android-phonegap-config-xml-not-working 
+            http://developer.android.com/guide/practices/screens_support.html 
+
+        3D Support required for transitions
+            http://stackoverflow.com/questions/12226548/lack-of-transitions-in-phonegap-using-jquery-mobile-on-android-2-3
+            http://jquerymobile.com/demos/1.1.0/docs/pages/page-transitions.html
+
+        Flickering Transitions
+            http://stackoverflow.com/questions/13305498/jquery-mobile-1-2-and-phonegap-2-2-0-pages-transition-flickering
+                $.mobile.defaultPageTransition = 'none'; 
+                $.mobile.pushStateEnabled = false;  
+
+        Application Preferences
+            http://www.javacodegeeks.com/2011/01/android-quick-preferences-tutorial.html
+            http://simonmacdonald.blogspot.co.uk/2012/06/phongap-android-application-preferences.html
+
+        Application Settings via menubutton
+            http://docs.phonegap.com/en/1.7.0/cordova_events_events.md.html#menubutton
+    -->
+
 
     <title>iZavit - World Intelligence Agency</title>    
     
-    <!--http://en.wikipedia.org/wiki/JQuery_Mobile-->
-
-    <!-- Splash Screens http://stackoverflow.com/questions/7517443/eclipse-android-phonegap-config-xml-not-working 
-    http://developer.android.com/guide/practices/screens_support.html -->
-
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Style Sheets -->
     <link type="text/css" href="jquery.mobile-1.2.0.min.css" rel="stylesheet" />
     <link type="text/css" href="Mobile.css" rel="stylesheet" />
     <link type="text/css" href="Spinner.css" rel="stylesheet" />
 
+    <!-- Libraries -->
     <script src="jquery-1.8.2.min.js" type="text/javascript"></script>
     <script src="jquery.mobile-1.2.0.min.js" type="text/javascript"></script>
     <script src="cordova-2.2.0.js" type="text/javascript"></script>
     <script src="JSON2.js" type="text/javascript"></script>
     
+    <!--Custom Script -->
     <script src="LocalStorage.js" type="text/javascript"></script>
     <script src="iZavit.js" type="text/javascript"></script>
     <script src="utility.js" type="text/javascript"></script>
 
     <script type="text/javascript" charset="utf-8">
-
-        //Anonymous functions
-        //http://2007-2010.lovemikeg.com/2008/08/17/a-week-in-javascript-patterns-self-invocation/
-
-        //http://stackoverflow.com/questions/11138501/phonegap-for-android-deviceready-not-working
 
         //http://jquerymobile.com/test/docs/pages/phonegap.html
         $(document).bind("mobileinit", function () {
@@ -41,12 +71,10 @@
             $.mobile.allowCrossDomainPages = true;
         });
 
-        //Preferences 
-        //http://www.javacodegeeks.com/2011/01/android-quick-preferences-tutorial.html
-        //http://simonmacdonald.blogspot.co.uk/2012/06/phongap-android-application-preferences.html
-
         $(document).ready(function () {
-            //Add handlers for the click event. http://api.jquery.com/click/
+
+
+                
         });
 
         document.addEventListener('deviceready', function () {
@@ -54,8 +82,8 @@
             //won't fire when you 
             //super.setBooleanProperty("loadInWebView", true);
 
-            //HideElement('imgALG');
-            HideElement('spinner');
+            ShowElement('spinner', false );
+            ShowElement('spinnerSignIn', false );
 
             /*
             Before Cordova 2.2.0, the Connection object existed at: navigator.network.connection.
@@ -68,11 +96,10 @@
             if (navigator.network.connection.type == Connection.NONE) {
                 document.addEventListener("backbutton", quitiZavit, false);
                 $.mobile.changePage($('#divNoNetwork'));
-                navigator.splashscreen.hide();
+                Initialised();
             } else ping();
 
             //Application Settings via menubutton
-            //http://docs.phonegap.com/en/1.7.0/cordova_events_events.md.html#menubutton
             document.addEventListener("menubutton", onMenuKeyDown, false);
 
         }, false);
@@ -93,7 +120,7 @@
 
  
 
-    <div data-role="page" id="first" data-theme="a">
+    <div data-role="page" id="divIssueCandidates" data-theme="a">
  
         <div data-role="header">
             <h1 id="hIssueTitle">Connecting to server ...</h1>
@@ -123,7 +150,7 @@
             
                 <!-- http://planitize.tumblr.com/tagged/loading-spinner -->
 
-                <div class="spinner" id="spinner">
+                <div class="spinner spinnerWhite" id="spinner">
                     <div class="bar1"></div>
                     <div class="bar2"></div>
                     <div class="bar3"></div>
@@ -163,6 +190,19 @@
  
     </div>
  
+
+     <div data-role="page" id="divIssuesCurrent" data-theme="a">
+ 
+        <div data-role="header">
+            <h1 id="h2">Current Issues</h1>
+        </div>
+ 
+        <div data-role="content">
+            Current Issues
+        </div>
+
+    </div>
+
     <div data-role="page" id="divNoNetwork" data-theme="b">
         <div data-role="header">
             <h1 id="h1">iZavit</h1>
@@ -192,7 +232,22 @@
             <input type="text" id="tbPassword" name="tbPassword" placeholder="password" value="pwavAg0" />
             <label for="tbPassword">password</label>
 
-            <button id="buttonSignIn" value="sign in"></button>
+            <button id="buttonSignIn" value="sign in" data-inline="true"></button>
+
+            <div class="spinner spinnerBlack" id="spinnerSignIn">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+                <div class="bar4"></div>
+                <div class="bar5"></div>
+                <div class="bar6"></div>
+                <div class="bar7"></div>
+                <div class="bar8"></div>
+                <div class="bar9"></div>
+                <div class="bar10"></div>
+                <div class="bar11"></div>
+                <div class="bar12"></div>
+            </div> 
 
             <p class="x-small">Your information is never shared with any other person or organisation without your permission.</p>
 
@@ -210,15 +265,15 @@
 
 
             <p>
-                Mode:
+                Application Mode:
             </p>
 
             <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
-                <input type="radio" id="rbtnModeCurrentIssues" name="ModeIssues"/>
-                <label for="rbtnModeCurrentIssues">Current</label> 
-                        
                 <input type="radio" id="rbtnModeCandidateIssues" name="ModeIssues"/>
                 <label for="rbtnModeCandidateIssues">Candidates</label> 
+
+                <input type="radio" id="rbtnModeCurrentIssues" name="ModeIssues"/>
+                <label for="rbtnModeCurrentIssues">Current</label> 
             </fieldset>
                         
             <p>
@@ -238,9 +293,17 @@
             </fieldset>  
 
             <p>
-                End Session
+                Action
             </p>
-            <button id="ButtonEnd" value="End"></button>
+            <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
+                        
+                <input type="radio" id="rbtnGo" name="SelectAction"/>
+                <label for="rbtnGo">Go</label> 
+                        
+                <input type="radio" id="rbtnEnd" name="SelectAction"/>
+                <label for="rbtnEnd">End</label> 
+                        
+            </fieldset>  
 
         </div>
           
@@ -271,26 +334,38 @@
             NextIssue();
         });
 
-        $("#rbtnSelectNewIssues").click(function () {
-            IssueContendersSelect("N");
-            $.mobile.changePage($('#first'));
-        });
-
-        $("#rbtnSelectUpdatableIssues").click(function () {
-            IssueContendersSelect("U");
-            $.mobile.changePage($('#first'));
-        });
-
-        $("#rbtnSelectAllIssues").click(function () {
-            IssueContendersSelect("A");
-            $.mobile.changePage($('#first'));
-        });
-
         $("#ButtonQuit").click(function () {
             quitiZavit();
         });
-        
-        $("#ButtonEnd").click(function () {
+
+        //Menu
+
+        $("#rbtnModeCandidateIssues").click(function () {
+            SetModeToCandidateIssues();
+        });
+
+        $("#rbtnModeCurrentIssues").click(function () {
+            SetModeToCurrentIssues();
+        });
+
+        $("#rbtnSelectNewIssues").click(function () {
+            CandidateIssueSelectionModeSave('N');
+        });
+
+        $("#rbtnSelectUpdatableIssues").click(function () {
+            CandidateIssueSelectionModeSave('U');
+        });
+
+        $("#rbtnSelectAllIssues").click(function () {
+            CandidateIssueSelectionModeSave('A');
+        });
+
+
+        $("#rbtnGo").click(function () {
+            Go();
+        });
+
+        $("#rbtnEnd").click(function () {
             quitiZavit();
         });
 

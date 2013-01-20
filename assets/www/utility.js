@@ -1,12 +1,11 @@
-﻿function ShowElement(elementId){
+﻿function ShowElement(elementId, show){
     var jqSelect = '#' + elementId;
-    $(jqSelect).show();
+    if(show)
+        {$(jqSelect).show();} 
+    else 
+        {$(jqSelect).hide();}
 }
 
-function HideElement(elementId){
-    var jqSelect = '#' + elementId;
-    $(jqSelect).hide();
-}
 
 function showSpinner(show){
     if (show) {
@@ -24,6 +23,12 @@ function showSpinner(show){
     } else {
         $('#spinner').hide();
     }
+}
+
+
+function goBack() {
+	history.back();
+	return false;
 }
 
 

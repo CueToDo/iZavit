@@ -10,30 +10,47 @@
     states[Connection.CELL_4G] = 'Cell 4G connection';
     states[Connection.NONE] = 'No network connection';
 
-    alert('Connection type: ' + states[networkState]);
+    navigator.notification.alert('Connection type', null, states[networkState]);
 }
 
-function AllNewOrUpdatable(){
-    if($("#rbtnSelectNewIssues").is(':checked')){return "N"}
-    else if($("#rbtnSelectUpdatableIssues").is(':checked')) {return "U"}
-    else return "A"
-}
 
+//Check that we have a response from the iZavit webserver
 function ping() {
+
+    alert('ping');   
 
     $.ajax(
         { url: 'http://www.iZavit.com' }
     )
-    .done(function () { 
-        //Why are we testing lsJsonSettings here???
-        //What happens if the test fails???
-        if (lsJsonSettings.emailHash) {IssueContendersSelect()} }
+
+    .done(
+        function () {
+        
+            alert('ping done');   
+         
+            //Why are we testing lsJsonSettings here???
+            //What happens if the test fails???
+            if (lsJsonSettings.emailHash) {
+                alert('ping go');
+                Go();
+            } 
+        }
     )
     .fail(
+        
         function (xmlHttpRequest, statusText, errorThrown) {
+            alert('ping fail');   
             navigator.notification.alert('The iZavit webservers cannot be reached at this time. Please try again later', null, 'Web service error')
         }
     )
+
+    .always(
+        function(){
+            alert('ping always');  
+        }
+    )
+
+
 }
 
 function setHeaderAuthenticationValues(xhr) {
@@ -55,6 +72,7 @@ function promptRegistration() {
 function SignIn(emailAddress, password) {
 
     //var element = document.getElementById('deviceProperties');
+    ShowElement('spinnerSignIn', true);
 
     try {
 
@@ -98,27 +116,38 @@ function SignIn(emailAddress, password) {
                                 lsSaveSettings(response.d.EmailHash, response.d.SessionKey);
                                 //alert('Sign in details saved');
 
-                                IssueContendersSelect();
+                                IssueCandidatesSelect();
+                                $.mobile.changePage($("#divIssueCandidates"));
+ 
                             } else {
-                                alert(response.d.Message);
+                                navigator.notification.alert(response.d.Message, null, "Sign in: Fail");
                             };
                         } catch (e) {
-                            alert("Sign in error: " + e.Message)
+                            navigator.notification.alert(e.Message, null, 'Sign In: Error')
                         };
                     }
                 )
 
                 .fail(
                     function (xmlHttpRequest, statusText, errorThrown) {
-                        alert("Sign in fail: XML Http Request: " + JSON.stringify(xmlHttpRequest)
-                          + ",\nStatus Text: " + statusText
-                          + ",\nError Thrown: " + errorThrown)
+                        navigator.notification.alert( 
+                            "XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                            + ",\nStatus Text: " + statusText
+                            + ",\nError Thrown: " + errorThrown,
+                            null,
+                            'Sign In: Fail')
+                    }
+                )
+
+                .always(
+                    function(){
+                        ShowElement('spinnerSignIn', false);
                     }
                 )
 
 
     } catch (err) {
-        alert("Sign in error caught: " + err.Message);
+        navigator.notification.alert(err.Message, null, "Sign In: Error");
     }
 
 }
@@ -139,21 +168,24 @@ function Register(EMailAddress) {
                 function (response) {
                     try {
                         if (!response.d.Success) {
-                            alert(response.d.Message);
+                            navigator.notification.alert(response.d.Message, null, "Registration success");
                         } else {
-                            alert(response.d.Message);
+                            navigator.notification.alert(response.d.Message, null, "Registration failed");
                         };
                     } catch (e) {
-                        alert(e.Message)
+                        navigator.notification.alert(e.Message, null, "Registration error")
                     };
                 }
             )
 
             .fail(
                 function (xmlHttpRequest, statusText, errorThrown) {
-                    alert("Registration failure: XML Http Request: " + JSON.stringify(xmlHttpRequest)
-                      + ",\nStatus Text: " + statusText
-                      + ",\nError Thrown: " + errorThrown)
+                    navigator.notification.alert(
+                        "XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                        + ",\nStatus Text: " + statusText
+                        + ",\nError Thrown: " + errorThrown,
+                        null, 
+                        'Registration failure')
                 }
             )
 }
@@ -163,24 +195,40 @@ function quitiZavit() {
 }
 
 function MustSignIn() {
-    //TODO Change this alert to a notification
-    alert("Please sign in");
+    navigator.notification.alert('Your session key is not valid', null, 'Please sign in')
     document.addEventListener("backbutton", quitiZavit, false);
     $.mobile.changePage($('#divSignIn'));
 }
 
-function IssueContendersSelect() {
+function Initialised(){
 
-    //ShowElement('imgALG');
-    ShowElement('spinner');
+    navigator.splashscreen.hide();
 
-    //alert('IssueContendersSelect');
+    //Must wait until initialisation is complete (splash screen is hidden)
+
+    if(Mode()=='Current') {$("#rbtnModeCurrentIssues").prop("checked", true);}
+    else {$("#rbtnModeCandidateIssues").prop("checked", true);}
+
+    if (CandidateIssueSelectionMode()=='N'){$("#rbtnSelectNewIssues").prop("checked", true); }
+    else if (CandidateIssueSelectionMode()=='U') {$("#rbtnSelectUpdatableIssues").prop("checked", true);}
+    else {$("#rbtnSelectAllIssues").prop("checked", true);}
+
+    //.checkboxradio("refresh") http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
+    $("input[type='radio']").checkboxradio("refresh");
+
+}
+
+function IssueCandidatesSelect() {
+
+    ShowElement('spinner', true);
+
+    //alert('IssueCandidatesSelect');
     $.ajax(
-        { url: "http://www.izavit.com/WS/iZ.asmx/IssueContendersSelect",
+        { url: "http://www.izavit.com/WS/iZ.asmx/IssueCandidatesSelect",
             contentType: "application/json; charset=utf-8",
             type: "POST",
             beforeSend: setHeaderAuthenticationValues,
-            data: '{"AllNewOrUpdatable":"' + AllNewOrUpdatable() + '"}',
+            data: '{"CandidateIssueSelectionMode":"' + CandidateIssueSelectionMode() + '"}',
             dataType: "json"
         }
     )
@@ -191,51 +239,52 @@ function IssueContendersSelect() {
                 //alert('Auth: ' + response.d.Authenticated);
                 //alert(response.d.Message);
                 if (!response.d.Authenticated) {
-                    navigator.splashscreen.hide(); 
+                    Initialised(); 
                     MustSignIn();
                 } else if (!response.d.Success) {
-                    navigator.splashscreen.hide(); 
-                    alert("Issue Contenders Select not successful: " + response.d.Message);
+                    Initialised(); 
+                    navigator.notification.alert(response.d.Message, null, "Issue Candidates Select: Failed");
                 } else {
                     //must wait a little longer before hiding splash screen
-                    IssueContender();
+                    IssueCandidate();
                 };
             } catch (e) {
-                navigator.splashscreen.hide(); 
-                alert("Issue Contenders Select Error: " + e.Message)
+                Initialised(); 
+                navigator.notification.alert(e.Message, null, "Issue Candidates Select: Error")
             };
         }
     )
 
     .fail(
         function (xmlHttpRequest, statusText, errorThrown) {
-            navigator.splashscreen.hide(); 
-            alert("Issue Contenders Select Fail XML Http Request: " + JSON.stringify(xmlHttpRequest)
+            Initialised(); 
+            navigator.notification.alert(
+                "XML Http Request: " + JSON.stringify(xmlHttpRequest)
                 + ",\nStatus Text: " + statusText
-                + ",\nError Thrown: " + errorThrown)
+                + ",\nError Thrown: " + errorThrown,
+                null,
+                "Issue Candidates Select: Fail")
         }
     )
 
     .always(function(){
-            //HideElement('imgALG');
-            HideElement('spinner');
+            ShowElement('spinner', false);
         }
     )
 }
 
-function IssueContender() {
+function IssueCandidate() {
 
-    //navigator.splashscreen.hide(); is in "always"
+    //Initialised(); is in "always"
 
-    //ShowElement('imgALG');
-    ShowElement('spinner');
+    ShowElement('spinner', true);
 
     $.ajax(
-        { url: "http://www.izavit.com/WS/iZ.asmx/IssueContender",
+        { url: "http://www.izavit.com/WS/iZ.asmx/IssueCandidate",
             contentType: "application/json; charset=utf-8",
             type: "POST",
             beforeSend: setHeaderAuthenticationValues,
-            data: '{"AllNewOrUpdatable":"' + AllNewOrUpdatable() + '"}',
+            data: '{"CandidateIssueSelectionMode":"' + CandidateIssueSelectionMode() + '"}',
             dataType: "json"
         }
     )
@@ -244,59 +293,71 @@ function IssueContender() {
         function (response) {
             try {
 
+                //alert(response.d.ResultBasic.Success);
+
                 if (response.d.ResultBasic.Success) {
 
-                    IssueIdSave(response.d.IssueID);
+                    IssuesSelectedSave(response.d.Total);
 
-                    $("#hIssueTitle").text(response.d.Issue);
-                    $("#divIssueContext").text(response.d.ContextHTML);
-                    $("#divIssueContext2").text(response.d.ContextHTML2);
+                    if(response.d.Total == 0){
+                        navigator.notification.alert("There are no issue candidates to vote on at this time.", null, "Issue Candidate Fetch");
+                        $.mobile.changePage($('#divIssuesCurrent'));
+                        SetModeToCurrentIssues();
+                    }
+                    else {
+                        IssueIdSave(response.d.IssueID);
 
-                    //prop/attr http://api.jquery.com/prop/
-                    //.checkboxradio("refresh") http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
-                    $("#chkInteresting").prop("checked", response.d.Interesting).checkboxradio("refresh"); 
-                    $("#chkImportant").prop("checked", response.d.Important).checkboxradio("refresh");
-                    $("#chkActionRequired").prop("checked", response.d.ActionRequired).checkboxradio("refresh");
+                        $("#hIssueTitle").text(response.d.Issue);
+                        $("#divIssueContext").text(response.d.ContextHTML);
+                        $("#divIssueContext2").text(response.d.ContextHTML2);
+
+                        //prop/attr http://api.jquery.com/prop/
+                        //.checkboxradio("refresh") http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
+                        $("#chkInteresting").prop("checked", response.d.Interesting).checkboxradio("refresh"); 
+                        $("#chkImportant").prop("checked", response.d.Important).checkboxradio("refresh");
+                        $("#chkActionRequired").prop("checked", response.d.ActionRequired).checkboxradio("refresh");
                     
-                    $("#spnIssueNumber").text(response.d.Selection);
-                    $("#spnIssueTotalSelected").text(response.d.Total);spnIssueTotalSelected
-                    $("#spnLatestStartDate").text(response.d.LatestStartDate);
+                        $("#spnIssueNumber").text(response.d.Selection);
+                        $("#spnIssueTotalSelected").text(response.d.Total);spnIssueTotalSelected
+                        $("#spnLatestStartDate").text(response.d.LatestStartDate);
 
-                    $("#spnReselectionMessageNew").hide();
-                    $("#spnReselectionMessageUpdatable").hide();
-                    $("#spnReselectionMessageAll").hide();
+                        $("#spnReselectionMessageNew").hide();
+                        $("#spnReselectionMessageUpdatable").hide();
+                        $("#spnReselectionMessageAll").hide();
 
-                    if(response.d.Reselected){
-                        switch(response.d.ReselectNewUpdatableOrAll){
-                            case "N": $("#spnReselectionMessageNew").show(); break;
-                            case "U": $("#spnReselectionMessageUpdatable").show(); break;
-                            case "A": $("#spnReselectionMessageAll").show(); break;
+                        if(response.d.Reselected){
+                            switch(response.d.ReselectNewUpdatableOrAll){
+                                case "N": $("#spnReselectionMessageNew").show(); break;
+                                case "U": $("#spnReselectionMessageUpdatable").show(); break;
+                                case "A": $("#spnReselectionMessageAll").show(); break;
+                            }
                         }
                     }
-
                 } else {
-                    alert("Issue Contender fetch not successful: " + response.d.ResultBasic.Message);
+                    navigator.notification.alert(response.d.ResultBasic.Message, null, "Issue Candidate Fetch: Failed");
                 };
             } catch (e) {
-                alert("Issue Contender fetch error: " + e.Message)
+                navigator.notification.alert(e.Message, null, "Issue Candidate Fetch: Error")
             };
         }
     )
 
     .fail(
         function (xmlHttpRequest, statusText, errorThrown) {
-            alert("Issue Contender fetch failed XML Http Request: " + JSON.stringify(xmlHttpRequest)
+            navigator.notification.alert(
+                "XML Http Request: " + JSON.stringify(xmlHttpRequest)
                 + ",\nStatus Text: " + statusText
-                + ",\nError Thrown: " + errorThrown)
+                + ",\nError Thrown: " + errorThrown,
+                null,
+                "Issue Candidate Fetch: Failed")
         }
     )
 
     .always(function(){            
-        //When the app first loads, we call ping, IssueContendersSelect and IssueContender
+        //When the app first loads, we call ping, IssueCandidatesSelect and IssueCandidate
         //All must complete before hiding the splash screen
-        navigator.splashscreen.hide(); 
-        //HideElement('imgALG');
-        HideElement('spinner');
+        Initialised(); 
+        ShowElement('spinner', false);
         }
     )
 
@@ -304,8 +365,7 @@ function IssueContender() {
 
 function Vote() {
 
-    //ShowElement('imgALG');
-    ShowElement('spinner');
+    ShowElement('spinner', true);
 
     var interesting = $("#chkInteresting").is(':checked'),
         important = $("#chkImportant").is(':checked'),
@@ -316,7 +376,7 @@ function Vote() {
             contentType: "application/json; charset=utf-8",
             type: "POST",
             beforeSend: setHeaderAuthenticationValues,
-            data: '{"IssueID":"' + IssueId() + '", "Interesting":"' + interesting + '", "Important":"' + important + '", "ActionRequired":"' + actionRequired + '", "AllNewOrUpdatable":"' + AllNewOrUpdatable() + '"}',
+            data: '{"IssueID":"' + IssueId() + '", "Interesting":"' + interesting + '", "Important":"' + important + '", "ActionRequired":"' + actionRequired + '", "CandidateIssueSelectionMode":"' + CandidateIssueSelectionMode() + '"}',
             dataType: "json"
         }
     )
@@ -325,34 +385,55 @@ function Vote() {
         function (response) {
             try {
                 if (response.d.ResultBasic.Success) {
-                    IssueContender();
+                    IssueCandidate();
                 } else {
-                    alert("Vote not successful: " + response.d.ResultBasic.Message);
+                    navigator.notification.alert(response.d.ResultBasic.Message, null, "Vote: Failed");
                 };
             } catch (e) {
-                alert("Vote error: " + e.Message)
+                navigator.notification.alert(e.Message, null, "Vote: Error")
             };
         }    
     )
 
     .fail(
             function (xmlHttpRequest, statusText, errorThrown) {
-                alert("Vote failed XML Http Request: " + JSON.stringify(xmlHttpRequest)
+                navigator.notification.alert(
+                    "XML Http Request: " + JSON.stringify(xmlHttpRequest)
                     + ",\nStatus Text: " + statusText
-                    + ",\nError Thrown: " + errorThrown)    
+                    + ",\nError Thrown: " + errorThrown,
+                    null,
+                    "Vote: Failed")    
             }
     )
 
     .always(function(){
-            //HideElement('imgALG');
-            HideElement('spinner');
+            ShowElement('spinner', false);
         }
     )
 
 }
 
+function Go(){
+
+    alert(Mode());
+
+    if (Mode()=='Candidates'){
+        IssueCandidatesSelect()
+    }
+    else {
+        $.mobile.changePage($('#divIssuesCurrent'));
+        Initialised();                  
+    }
+
+    $("#rbtnGo").prop("checked", false);    
+    $("input[type='radio']").checkboxradio("refresh"); //http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
+
+    //goBack();            
+}
+
 function NextIssue() {
-    IssueContender();
+    IssueCandidate();
+    //$.mobile.changePage($('#divSettings', {transition:'slideup'}));
 }
 
 function onMenuKeyDown() {
