@@ -29,9 +29,7 @@ function IssueId(){return window.localStorage.getItem("issueId")}
 function IssuesSelectedSave(issues){window.localStorage.setItem("issuesSelected", issues)}
 function IssuesSelected(){return window.localStorage.getItem("issues")}
 
-function SetModeToCandidateIssues(){window.localStorage.setItem("mode", "Candidates")} //"Candidates" or "Current" 
-function SetModeToCurrentIssues(){window.localStorage.setItem("mode", "Current")} //"Candidates" or "Current" 
-function Mode(){return window.localStorage.getItem("mode")}
+
 
 function CandidateIssueSelectionModeSave(mode){window.localStorage.setItem("candidateIssueSelectionMode", mode)}
 

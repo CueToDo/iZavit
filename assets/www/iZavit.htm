@@ -118,7 +118,23 @@
 
 <body> 
 
- 
+     <div data-role="page" id="divMenu" data-add-back-btn="false" data-theme="a">
+
+        <div data-role="header">
+            <h1>iZavit</h1>
+        </div>
+
+        <div data-role="content" class = "ui-hide-label">
+
+            <button id="buttonCandidateIssues" value="Candidates"></button>
+
+            <button id="buttonCurrentIssues" value="Current"></button>
+
+            <button id="buttonEnd" value="End"></button>
+            
+        </div>
+          
+    </div>
 
     <div data-role="page" id="divIssueCandidates" data-theme="a">
  
@@ -191,7 +207,7 @@
     </div>
  
 
-     <div data-role="page" id="divIssuesCurrent" data-theme="a">
+     <div data-role="page" id="divIssuesCurrent" data-add-back-btn="true" data-theme="a">
  
         <div data-role="header">
             <h1 id="h2">Current Issues</h1>
@@ -255,27 +271,15 @@
  
     </div>
 
-    <div data-role="page" id="divSettings" data-add-back-btn="true" data-theme="a">
+
+    <div data-role="page" id="divSettings" data-add-back-btn="false" data-theme="a">
 
         <div data-role="header">
-            <h1>Menu</h1>
+            <h1>Settings</h1>
         </div>
 
         <div data-role="content" class = "ui-hide-label">
-
-
-            <p>
-                Application Mode:
-            </p>
-
-            <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
-                <input type="radio" id="rbtnModeCandidateIssues" name="ModeIssues"/>
-                <label for="rbtnModeCandidateIssues">Candidates</label> 
-
-                <input type="radio" id="rbtnModeCurrentIssues" name="ModeIssues"/>
-                <label for="rbtnModeCurrentIssues">Current</label> 
-            </fieldset>
-                        
+        
             <p>
                 Issue Selection Type:
             </p>
@@ -290,26 +294,11 @@
                         
                 <input type="radio" id="rbtnSelectAllIssues" name="SelectIssues" />
                 <label for="rbtnSelectAllIssues">All</label> 
-            </fieldset>  
-
-            <p>
-                Action
-            </p>
-            <fieldset data-role="controlgroup" data-type="horizontal" data-role="fieldcontain">
-                        
-                <input type="radio" id="rbtnGo" name="SelectAction"/>
-                <label for="rbtnGo">Go</label> 
-                        
-                <input type="radio" id="rbtnEnd" name="SelectAction"/>
-                <label for="rbtnEnd">End</label> 
-                        
-            </fieldset>  
+            </fieldset> 
 
         </div>
-          
+
     </div>
-
-
 
 
     <script type="text/javascript">
@@ -322,52 +311,57 @@
 
         */
 
-        $("#buttonSignIn").click(function () {
-            SignIn($("#tbEmailAddress").val(), $("#tbPassword").val()) 
-        });
+        //No Network
 
-        $("#buttonVote").click(function () {
-            Vote();
-        });
+            $("#ButtonQuit").click(function () {
+                quitiZavit();
+            });
 
-        $("#buttonNextIssue").click(function () {
-            NextIssue();
-        });
+        //Must sign in
 
-        $("#ButtonQuit").click(function () {
-            quitiZavit();
-        });
+            $("#buttonSignIn").click(function () {
+                SignIn($("#tbEmailAddress").val(), $("#tbPassword").val()) 
+            });
 
         //Menu
 
-        $("#rbtnModeCandidateIssues").click(function () {
-            SetModeToCandidateIssues();
-        });
+            $("#buttonCandidateIssues").click(function () {
+                $.mobile.changePage($('#divIssueCandidates'));
+                IssueCandidatesSelect()
+            });
 
-        $("#rbtnModeCurrentIssues").click(function () {
-            SetModeToCurrentIssues();
-        });
+            $("#buttonCurrentIssues").click(function () {
+                $.mobile.changePage($('#divIssuesCurrent'));
+                Initialised();  
+            });
 
-        $("#rbtnSelectNewIssues").click(function () {
-            CandidateIssueSelectionModeSave('N');
-        });
+            $("#buttonEnd").click(function () {
+                quitiZavit();
+            });
 
-        $("#rbtnSelectUpdatableIssues").click(function () {
-            CandidateIssueSelectionModeSave('U');
-        });
+        //Candidate Issues
 
-        $("#rbtnSelectAllIssues").click(function () {
-            CandidateIssueSelectionModeSave('A');
-        });
+            $("#buttonVote").click(function () {
+                Vote();
+            });
 
+            $("#buttonNextIssue").click(function () {
+                NextIssue();
+            });
 
-        $("#rbtnGo").click(function () {
-            Go();
-        });
+        //Settings
 
-        $("#rbtnEnd").click(function () {
-            quitiZavit();
-        });
+            $("#rbtnSelectNewIssues").click(function () {
+                CandidateIssueSelectionModeSave('N');
+            });
+
+            $("#rbtnSelectUpdatableIssues").click(function () {
+                CandidateIssueSelectionModeSave('U');
+            });
+
+            $("#rbtnSelectAllIssues").click(function () {
+                CandidateIssueSelectionModeSave('A');
+            });
 
     </script> 
 

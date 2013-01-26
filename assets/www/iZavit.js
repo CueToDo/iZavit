@@ -17,7 +17,7 @@
 //Check that we have a response from the iZavit webserver
 function ping() {
 
-    alert('ping');   
+    //alert('ping');   
 
     $.ajax(
         { url: 'http://www.iZavit.com' }
@@ -26,32 +26,52 @@ function ping() {
     .done(
         function () {
         
-            alert('ping done');   
-         
-            //Why are we testing lsJsonSettings here???
-            //What happens if the test fails???
-            if (lsJsonSettings.emailHash) {
-                alert('ping go');
-                Go();
-            } 
+            //alert('ping done');   
+            Initialised();
+            
         }
     )
     .fail(
         
         function (xmlHttpRequest, statusText, errorThrown) {
-            alert('ping fail');   
+            //alert('ping fail');   
             navigator.notification.alert('The iZavit webservers cannot be reached at this time. Please try again later', null, 'Web service error')
         }
     )
 
     .always(
         function(){
-            alert('ping always');  
+            //alert('ping always');  
         }
     )
 
 
 }
+
+
+//function Go(){
+
+    //$("#rbtnGo").prop("checked", false);    
+    //$("input[type='radio']").checkboxradio("refresh"); //http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
+
+    //goBack();            
+//}
+
+function Initialised(){
+
+    navigator.splashscreen.hide();
+
+    //Must wait until initialisation is complete (splash screen is hidden)
+
+    if (CandidateIssueSelectionMode()=='N'){$("#rbtnSelectNewIssues").prop("checked", true); }
+    else if (CandidateIssueSelectionMode()=='U') {$("#rbtnSelectUpdatableIssues").prop("checked", true);}
+    else {$("#rbtnSelectAllIssues").prop("checked", true);}
+
+    //.checkboxradio("refresh") http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
+    $("input[type='radio']").checkboxradio("refresh");
+
+}
+
 
 function setHeaderAuthenticationValues(xhr) {
 
@@ -200,23 +220,6 @@ function MustSignIn() {
     $.mobile.changePage($('#divSignIn'));
 }
 
-function Initialised(){
-
-    navigator.splashscreen.hide();
-
-    //Must wait until initialisation is complete (splash screen is hidden)
-
-    if(Mode()=='Current') {$("#rbtnModeCurrentIssues").prop("checked", true);}
-    else {$("#rbtnModeCandidateIssues").prop("checked", true);}
-
-    if (CandidateIssueSelectionMode()=='N'){$("#rbtnSelectNewIssues").prop("checked", true); }
-    else if (CandidateIssueSelectionMode()=='U') {$("#rbtnSelectUpdatableIssues").prop("checked", true);}
-    else {$("#rbtnSelectAllIssues").prop("checked", true);}
-
-    //.checkboxradio("refresh") http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
-    $("input[type='radio']").checkboxradio("refresh");
-
-}
 
 function IssueCandidatesSelect() {
 
@@ -300,9 +303,9 @@ function IssueCandidate() {
                     IssuesSelectedSave(response.d.Total);
 
                     if(response.d.Total == 0){
-                        navigator.notification.alert("There are no issue candidates to vote on at this time.", null, "Issue Candidate Fetch");
-                        $.mobile.changePage($('#divIssuesCurrent'));
-                        SetModeToCurrentIssues();
+                        navigator.notification.alert("There are no issue candidates to vote on at this time.", 
+                            function(){goBack()}, //To menu}
+                            "Issue Candidate Fetch");
                     }
                     else {
                         IssueIdSave(response.d.IssueID);
@@ -413,27 +416,11 @@ function Vote() {
 
 }
 
-function Go(){
 
-    alert(Mode());
-
-    if (Mode()=='Candidates'){
-        IssueCandidatesSelect()
-    }
-    else {
-        $.mobile.changePage($('#divIssuesCurrent'));
-        Initialised();                  
-    }
-
-    $("#rbtnGo").prop("checked", false);    
-    $("input[type='radio']").checkboxradio("refresh"); //http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
-
-    //goBack();            
-}
 
 function NextIssue() {
     IssueCandidate();
-    //$.mobile.changePage($('#divSettings', {transition:'slideup'}));
+    //$.mobile.changePage($('#divMenu', {transition:'slideup'}));
 }
 
 function onMenuKeyDown() {
