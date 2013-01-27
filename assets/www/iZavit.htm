@@ -96,7 +96,6 @@
             if (navigator.network.connection.type == Connection.NONE) {
                 document.addEventListener("backbutton", quitiZavit, false);
                 $.mobile.changePage($('#divNoNetwork'));
-                Initialised();
             } else ping();
 
             //Application Settings via menubutton
@@ -126,11 +125,11 @@
 
         <div data-role="content" class = "ui-hide-label">
 
-            <button id="buttonCandidateIssues" value="Candidates"></button>
+            <button type="button" id="buttonCandidateIssues">Issue Candidates</button>
 
-            <button id="buttonCurrentIssues" value="Current"></button>
+            <button type="button" id="buttonCurrentIssues">Current Issues</button>
 
-            <button id="buttonEnd" value="End"></button>
+            <button type="button" id="buttonEnd">End</button>
             
         </div>
           
@@ -332,7 +331,6 @@
 
             $("#buttonCurrentIssues").click(function () {
                 $.mobile.changePage($('#divIssuesCurrent'));
-                Initialised();  
             });
 
             $("#buttonEnd").click(function () {

@@ -27,7 +27,7 @@ function ping() {
         function () {
         
             //alert('ping done');   
-            Initialised();
+            IssueCandidateStats();
             
         }
     )
@@ -57,20 +57,71 @@ function ping() {
     //goBack();            
 //}
 
-function Initialised(){
 
-    navigator.splashscreen.hide();
+function IssueCandidateStats(){
 
-    //Must wait until initialisation is complete (splash screen is hidden)
+    $.ajax(
+        {   url: 'http://www.iZavit.com/WS/iZ.asmx/IssueCandidateStatistics' ,
+            contentType: "application/json; charset=utf-8",
+            type: "POST",
+            beforeSend: setHeaderAuthenticationValues,
+            dataType: "json"        
+        }
+    )
 
-    if (CandidateIssueSelectionMode()=='N'){$("#rbtnSelectNewIssues").prop("checked", true); }
-    else if (CandidateIssueSelectionMode()=='U') {$("#rbtnSelectUpdatableIssues").prop("checked", true);}
-    else {$("#rbtnSelectAllIssues").prop("checked", true);}
 
-    //.checkboxradio("refresh") http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
-    $("input[type='radio']").checkboxradio("refresh");
+
+    .done(
+        function (response) {
+        
+            try {
+
+                if (!response.d.ResultBasic.Authenticated) {
+                    MustSignIn();
+                } else if (!response.d.ResultBasic.Success) {
+                    navigator.notification.alert(response.d.ResultBasic.Message, null, "IssueCandidateStats: Fail");
+                } else {
+                    
+                    var candidates = "Issue Candidates (" + response.d.NewIssues + " of " + response.d.Candidates + ")"
+                    $("#buttonCandidateIssues").text(candidates).button("refresh");
+                    
+                    var currentIssues = "Current Issues (" + response.d.CurrentIssues + ")";
+                    $("#buttonCurrentIssues").text(currentIssues).button("refresh");
+                };
+            } catch (e) {
+                navigator.notification.alert(e.Message, null, 'IssueCandidateStats: Error')
+            };
+
+            navigator.splashscreen.hide();
+
+            //Must wait until initialisation is complete (splash screen is hidden)
+
+            if (CandidateIssueSelectionMode()=='N'){$("#rbtnSelectNewIssues").prop("checked", true); }
+            else if (CandidateIssueSelectionMode()=='U') {$("#rbtnSelectUpdatableIssues").prop("checked", true);}
+            else {$("#rbtnSelectAllIssues").prop("checked", true);}
+
+            //.checkboxradio("refresh") http://jquerymobile.com/demos/1.0a4.1/docs/forms/forms-checkboxes.html
+            $("input[type='radio']").checkboxradio("refresh");
+            
+        }
+    )
+    .fail(
+        
+        function (xmlHttpRequest, statusText, errorThrown) {
+            //alert('ping fail');   
+            navigator.notification.alert('Could not determine Issue Candidate Stats', null, 'Web service error')
+        }
+    )
+
+    .always(
+        function(){
+            //alert('ping always');  
+        }
+    )
 
 }
+
+
 
 
 function setHeaderAuthenticationValues(xhr) {
@@ -242,17 +293,14 @@ function IssueCandidatesSelect() {
                 //alert('Auth: ' + response.d.Authenticated);
                 //alert(response.d.Message);
                 if (!response.d.Authenticated) {
-                    Initialised(); 
                     MustSignIn();
                 } else if (!response.d.Success) {
-                    Initialised(); 
                     navigator.notification.alert(response.d.Message, null, "Issue Candidates Select: Failed");
                 } else {
                     //must wait a little longer before hiding splash screen
                     IssueCandidate();
                 };
             } catch (e) {
-                Initialised(); 
                 navigator.notification.alert(e.Message, null, "Issue Candidates Select: Error")
             };
         }
@@ -260,7 +308,6 @@ function IssueCandidatesSelect() {
 
     .fail(
         function (xmlHttpRequest, statusText, errorThrown) {
-            Initialised(); 
             navigator.notification.alert(
                 "XML Http Request: " + JSON.stringify(xmlHttpRequest)
                 + ",\nStatus Text: " + statusText
@@ -277,8 +324,6 @@ function IssueCandidatesSelect() {
 }
 
 function IssueCandidate() {
-
-    //Initialised(); is in "always"
 
     ShowElement('spinner', true);
 
@@ -359,7 +404,6 @@ function IssueCandidate() {
     .always(function(){            
         //When the app first loads, we call ping, IssueCandidatesSelect and IssueCandidate
         //All must complete before hiding the splash screen
-        Initialised(); 
         ShowElement('spinner', false);
         }
     )
